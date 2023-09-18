@@ -1,8 +1,12 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.Reactive.Concurrency;
 using System.Runtime.CompilerServices;
 using YetAnotherDiscordBot.Base;
+using YetAnotherDiscordBot.Handlers;
+using YetAnotherDiscordBot.Service;
 
 namespace YetAnotherDiscordBot
 {
@@ -14,6 +18,8 @@ namespace YetAnotherDiscordBot
 
         public static Dictionary<Bot, Thread> BotToThread = new Dictionary<Bot, Thread>();
 
+        private Stopwatch stopwatch = new Stopwatch();
+
         public static async Task Main(string[] args)
         {
             await new Program().MainAsync(args);
@@ -21,6 +27,8 @@ namespace YetAnotherDiscordBot
 
         public async Task MainAsync(string[] args)
         {
+            Log.Info("Starting up!");
+            stopwatch = Stopwatch.StartNew();
             DiscordSocketConfig config = new()
             {
                 GatewayIntents = GatewayIntents.All,
@@ -31,9 +39,21 @@ namespace YetAnotherDiscordBot
             Client = new(config);
             await Client.LoginAsync(TokenType.Bot, token);
             await Client.StartAsync();
+            await Client.SetStatusAsync(UserStatus.DoNotDisturb);
+            await Client.SetCustomStatusAsync("In Dev!");
+            ShutdownService.Start();
+            ShutdownService.OnShutdownSignal += OnShutdown;
             Client.Ready += OnReady;
             Client.Log += LogEvent;
+            Client.ApplicationCommandCreated += ApplicationCommandCreated;
+            Client.SlashCommandExecuted += CommandHandler.SlashCommandExecuted;
             await Task.Delay(-1);
+        }
+
+        private Task ApplicationCommandCreated(SocketApplicationCommand arg)
+        {
+            Log.Debug("Application command created!");
+            return Task.CompletedTask;
         }
 
         private static Task LogEvent(LogMessage msg)
@@ -41,34 +61,45 @@ namespace YetAnotherDiscordBot
             switch (msg.Severity)
             {
                 case LogSeverity.Error:
-                    Log.WriteError(msg.Message + "\n" + msg.Exception);
+                    Log.Error(msg.Message + "\n" + msg.Exception);
                     break;
                 case LogSeverity.Info:
-                    Log.WriteInfo(msg.Message + "\n" + msg.Exception);
+                    Log.Info(msg.Message + "\n" + msg.Exception);
                     break;
                 case LogSeverity.Warning:
-                    Log.WriteWarning(msg.Message + "\n" + msg.Exception);
+                    Log.Warning(msg.Message + "\n" + msg.Exception);
                     break;
                 case LogSeverity.Verbose:
-                    Log.WriteVerbose(msg.Message + "\n" + msg.Exception);
+                    Log.Verbose(msg.Message + "\n" + msg.Exception);
                     break;
                 case LogSeverity.Critical:
-                    Log.WriteCritical(msg.Message + "\n" + msg.Exception);
+                    Log.Critical(msg.Message + "\n" + msg.Exception);
                     break;
                 case LogSeverity.Debug:
-                    Log.WriteDebug(msg.Message + "\n" + msg.Exception);
+                    Log.Debug(msg.Message + "\n" + msg.Exception);
                     break;
                 default:
-                    Log.WriteWarning("The bellow message failed to be caught by any switch, default warning used.");
-                    Log.WriteWarning(msg.Message + "\n" + msg.Exception);
+                    Log.Warning("The bellow message failed to be caught by any switch, default warning used.");
+                    Log.Warning(msg.Message + "\n" + msg.Exception);
                     break;
             }
             return Task.CompletedTask;
         }
 
+
+
+        public void OnShutdown()
+        {
+            Log.Info("Logging out off Discord...");
+            Client.LogoutAsync();
+            Log.Info("Global Bot shutdown complete");
+        }
+
         public Task OnReady()
         {
-            Log.WriteInfo("Starting " + Client.Guilds.Count.ToString() + " threads. (One thread per guild)");
+            CommandHandler.GlobalCommandInit();
+            Log.Info("Pre-Server startup Took {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
+            Log.Info("Starting " + Client.Guilds.Count.ToString() + " threads. (One thread per guild)");
             foreach (SocketGuild guild in Client.Guilds)
             {
                 Bot bot = new(guild.Id);
@@ -76,6 +107,7 @@ namespace YetAnotherDiscordBot
                 thread.Start();
                 BotToThread.Add(bot, thread);
             }
+            Log.Info("Full startup time was {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
             return Task.CompletedTask;
         }
     }

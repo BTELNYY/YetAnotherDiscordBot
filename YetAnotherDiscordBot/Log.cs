@@ -15,7 +15,7 @@ namespace YetAnotherDiscordBot
             Console.WriteLine(msg);
             Console.ResetColor();
         }
-        public static void WriteSuccess(string msg)
+        public static void Success(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -34,7 +34,7 @@ namespace YetAnotherDiscordBot
             sw.Close();
             Console.ResetColor();
         }
-        public static void WriteError(string msg)
+        public static void Error(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -53,7 +53,7 @@ namespace YetAnotherDiscordBot
             sw.Close();
             Console.ResetColor();
         }
-        public static void WriteFatal(string msg)
+        public static void Fatal(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -72,7 +72,7 @@ namespace YetAnotherDiscordBot
             sw.Close();
             Console.ResetColor();
         }
-        public static void WriteWarning(string msg)
+        public static void Warning(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -91,7 +91,7 @@ namespace YetAnotherDiscordBot
             sw.Close();
             Console.ResetColor();
         }
-        public static void WriteInfo(string msg)
+        public static void Info(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -110,7 +110,7 @@ namespace YetAnotherDiscordBot
             sw.Close();
             Console.ResetColor();
         }
-        public static void WriteDebug(string msg)
+        public static void Debug(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -129,7 +129,7 @@ namespace YetAnotherDiscordBot
             sw.Close();
             Console.ResetColor();
         }
-        public static void WriteVerbose(string msg)
+        public static void Verbose(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -148,7 +148,7 @@ namespace YetAnotherDiscordBot
             sw.Close();
             Console.ResetColor();
         }
-        public static void WriteCritical(string msg)
+        public static void Critical(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {

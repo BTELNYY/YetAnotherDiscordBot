@@ -6,18 +6,20 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using YetAnotherDiscordBot.CommandBase;
+using YetAnotherDiscordBot.Configuration;
 using YetAnotherDiscordBot.Handlers;
+using YetAnotherDiscordBot.Service;
 
 namespace YetAnotherDiscordBot.Base
 {
-    public class Bot
+    public class BotShard
     {
-        public Dictionary<string, CommandBase.Command> PerBotCommands = new Dictionary<string, CommandBase.Command>();
+        public Dictionary<string, Command> PerBotCommands = new Dictionary<string, Command>();
 
         public ulong GuildID { get; private set; } = 0;
 
         public bool IsFakeBot 
-        {   
+        {
             get
             {
                 return _isfakebot;
@@ -42,6 +44,14 @@ namespace YetAnotherDiscordBot.Base
             }
         }
 
+        public ServerConfiguration ServerConfiguration
+        {
+            get
+            {
+                return ConfigurationService.GetServerConfiguration(GuildID);
+            }
+        }
+
         public SocketGuild TargetGuild
         {
             get
@@ -50,7 +60,7 @@ namespace YetAnotherDiscordBot.Base
             }
         }
 
-        public Bot(ulong guildId) 
+        public BotShard(ulong guildId) 
         {
             GuildID = guildId;
             if (Program.GuildToThread.ContainsKey(guildId))
@@ -61,11 +71,10 @@ namespace YetAnotherDiscordBot.Base
             Program.GuildToThread.Add(guildId, this);
         }
 
-        public Bot()
+        public BotShard()
         {
             IsFakeBot = true;
         }
-
 
         public void OnSlashCommandExecuted(SocketSlashCommand command)
         {

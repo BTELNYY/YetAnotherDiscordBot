@@ -14,9 +14,9 @@ namespace YetAnotherDiscordBot
     {
         public static DiscordSocketClient Client = new();
 
-        public static Dictionary<ulong, Bot> GuildToThread = new Dictionary<ulong, Bot>();
+        public static Dictionary<ulong, BotShard> GuildToThread = new Dictionary<ulong, BotShard>();
 
-        public static Dictionary<Bot, Thread> BotToThread = new Dictionary<Bot, Thread>();
+        public static Dictionary<BotShard, Thread> BotToThread = new Dictionary<BotShard, Thread>();
 
         private Stopwatch stopwatch = new Stopwatch();
 
@@ -41,6 +41,7 @@ namespace YetAnotherDiscordBot
             await Client.StartAsync();
             await Client.SetStatusAsync(UserStatus.DoNotDisturb);
             await Client.SetCustomStatusAsync("In Dev!");
+            ConfigurationService.Start();
             ShutdownService.Start();
             ShutdownService.OnShutdownSignal += OnShutdown;
             Client.Ready += OnReady;
@@ -102,7 +103,7 @@ namespace YetAnotherDiscordBot
             Log.Info("Starting " + Client.Guilds.Count.ToString() + " threads. (One thread per guild)");
             foreach (SocketGuild guild in Client.Guilds)
             {
-                Bot bot = new(guild.Id);
+                BotShard bot = new(guild.Id);
                 Thread thread = new(bot.StartBot);
                 thread.Start();
                 BotToThread.Add(bot, thread);

@@ -20,7 +20,7 @@ namespace YetAnotherDiscordBot.CommandBase
         public virtual List<string> Aliases { get; private set; } = new();
         public virtual bool PrivateCommand { get; private set; } = false;
         public virtual ulong PrivateServerID { get; private set; } = 0;
-        public Bot BotWhoRanMe { get; private set; } = new Bot() { IsFakeBot = true };
+        public BotShard BotWhoRanMe { get; private set; } = new BotShard() { IsFakeBot = true };
         public virtual void Execute(SocketSlashCommand command)
         {
             if(command.GuildId.HasValue)
@@ -28,6 +28,7 @@ namespace YetAnotherDiscordBot.CommandBase
                 BotWhoRanMe = Program.GuildToThread[command.GuildId.Value];
             }
         }
+
         public virtual void BuildAliases()
         {
 
@@ -60,6 +61,29 @@ namespace YetAnotherDiscordBot.CommandBase
                 }
             }
             return array;
+        }
+
+        public static Command GetCommandByName(string className)
+        {
+            Type? commandType = Type.GetType(className);
+            if(commandType == null)
+            {
+                Log.Error("Can't get a command class by name! Name: " + className);
+                return new Command();
+            }
+            else
+            {
+                Command? command = Activator.CreateInstance(commandType) as Command;
+                if(command == null)
+                {
+                    Log.Error("Failed to create class instance by Type reference! Found type but couldn't create class instance. Name: " + className);
+                    return new Command();
+                }
+                else
+                {
+                    return command;
+                }
+            }
         }
     }
 }

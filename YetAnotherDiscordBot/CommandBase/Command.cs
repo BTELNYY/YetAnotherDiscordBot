@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YetAnotherDiscordBot.Base;
 
 namespace YetAnotherDiscordBot.CommandBase
 {
@@ -20,12 +19,16 @@ namespace YetAnotherDiscordBot.CommandBase
         public virtual List<string> Aliases { get; private set; } = new();
         public virtual bool PrivateCommand { get; private set; } = false;
         public virtual ulong PrivateServerID { get; private set; } = 0;
-        public BotShard BotWhoRanMe { get; private set; } = new BotShard() { IsFakeBot = true };
+        public BotShard? ShardWhoRanMe { get; private set; }
         public virtual void Execute(SocketSlashCommand command)
         {
             if(command.GuildId.HasValue)
             {
-                BotWhoRanMe = Program.GuildToThread[command.GuildId.Value];
+                ShardWhoRanMe = Program.GetShard(command.GuildId.Value);
+            }
+            else
+            {
+                Log.Warning("Ran a command without a guildid, probably a dm command. this is not allowed.");
             }
         }
 
@@ -63,12 +66,13 @@ namespace YetAnotherDiscordBot.CommandBase
             return array;
         }
 
-        public static Command GetCommandByName(string className)
+        public static Command GetCommandByName(string className, out bool success)
         {
             Type? commandType = Type.GetType(className);
             if(commandType == null)
             {
                 Log.Error("Can't get a command class by name! Name: " + className);
+                success = false;
                 return new Command();
             }
             else
@@ -77,10 +81,12 @@ namespace YetAnotherDiscordBot.CommandBase
                 if(command == null)
                 {
                     Log.Error("Failed to create class instance by Type reference! Found type but couldn't create class instance. Name: " + className);
+                    success = false;
                     return new Command();
                 }
                 else
                 {
+                    success = true;
                     return command;
                 }
             }

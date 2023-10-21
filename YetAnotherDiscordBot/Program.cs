@@ -1,10 +1,12 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using System;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Reactive.Concurrency;
+using System.Reflection;
 using System.Runtime.CompilerServices;
-using YetAnotherDiscordBot.Base;
+
 using YetAnotherDiscordBot.Handlers;
 using YetAnotherDiscordBot.Service;
 
@@ -17,6 +19,23 @@ namespace YetAnotherDiscordBot
         public static Dictionary<ulong, BotShard> GuildToThread = new Dictionary<ulong, BotShard>();
 
         public static Dictionary<BotShard, Thread> BotToThread = new Dictionary<BotShard, Thread>();
+
+        public static BotShard GetShard(ulong id)
+        {
+            if (GuildToThread.ContainsKey(id))
+            {
+                return GuildToThread[id];
+            }
+            else
+            {
+                return StartShard(id);
+            }
+        }
+
+        public static bool HasShard(ulong id)
+        {
+            return GuildToThread.ContainsKey(id);
+        }
 
         private Stopwatch stopwatch = new Stopwatch();
 
@@ -87,8 +106,6 @@ namespace YetAnotherDiscordBot
             return Task.CompletedTask;
         }
 
-
-
         public void OnShutdown()
         {
             Log.Info("Logging out off Discord...");
@@ -103,13 +120,23 @@ namespace YetAnotherDiscordBot
             Log.Info("Starting " + Client.Guilds.Count.ToString() + " threads. (One thread per guild)");
             foreach (SocketGuild guild in Client.Guilds)
             {
-                BotShard bot = new(guild.Id);
-                Thread thread = new(bot.StartBot);
-                thread.Start();
-                BotToThread.Add(bot, thread);
+                StartShard(guild.Id);
             }
             Log.Info("Full startup time was {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
             return Task.CompletedTask;
+        }
+
+        public static BotShard StartShard(ulong guildId)
+        {
+            if (GuildToThread.ContainsKey(guildId))
+            {
+                return GuildToThread[guildId];
+            }
+            BotShard bot = new(guildId);
+            Thread thread = new(bot.StartBot);
+            thread.Start();
+            BotToThread.Add(bot, thread);
+            return bot;
         }
     }
 }

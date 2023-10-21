@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YetAnotherDiscordBot.Base;
 using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.Commands;
 
@@ -82,6 +81,10 @@ namespace YetAnotherDiscordBot.Handlers
             else
             {
                 Log.Error("Guild isn't managed by a thread!");
+                if (command.GuildId.HasValue)
+                {
+                    Program.StartShard(command.GuildId.Value);
+                }
             }
             return Task.CompletedTask;
         }

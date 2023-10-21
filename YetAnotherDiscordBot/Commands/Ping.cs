@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YetAnotherDiscordBot.Base;
 using YetAnotherDiscordBot.CommandBase;
 
 namespace YetAnotherDiscordBot.Commands
@@ -18,7 +17,12 @@ namespace YetAnotherDiscordBot.Commands
         public override GuildPermission RequiredPermission => GuildPermission.UseApplicationCommands;
         public override async void Execute(SocketSlashCommand command)
         {
-            await command.RespondAsync("Pong!" + " Current ping is " + BotWhoRanMe.Client.Latency + "ms");
+            if(ShardWhoRanMe == null)
+            {
+                Log.Error("ShardWhoRanMe is null but a command went off on it.");
+                return;
+            }
+            await command.RespondAsync("Pong!" + " Current ping is " + ShardWhoRanMe.Client.Latency + "ms");
         }
     }
 }

@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace YetAnotherDiscordBot.Configuration
 {
-    public class Configuration
+    public class ComponentServerConfiguration : Configuration
     {
-        
+        public virtual string Filename { get; } = "config.json";
+
+
     }
 }

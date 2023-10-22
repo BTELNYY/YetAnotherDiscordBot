@@ -124,5 +124,79 @@ namespace YetAnotherDiscordBot.Service
             File.WriteAllText(folderPath + "/config.json", json);
             return new ServerConfiguration();
         }
+
+        public static T GetComponentConfiguration<T>(T model, ulong serverId, out bool success, bool writeFile = false) where T : ComponentServerConfiguration
+        {
+            string filePath = ServerConfigFolder + serverId.ToString() + "/" + model.Filename;
+            if (!File.Exists(filePath))
+            {
+                if (writeFile)
+                {
+                    success = true;
+                    return WriteComponentConfiguration(model, serverId);
+                }
+                else
+                {
+                    success = false;
+                    T? result = (T?)Activator.CreateInstance(typeof(T));
+                    if(result == null)
+                    {
+                        return (T)new ComponentServerConfiguration();
+                    }
+                    else
+                    {
+                        return result;
+                    }
+                }
+            }
+            else
+            {
+                string data = File.ReadAllText(filePath);
+                T? json = JsonConvert.DeserializeObject<T>(data);
+                if(json == null)
+                {
+                    success = false;
+                    T? result = (T?)Activator.CreateInstance(typeof(T));
+                    if (result == null)
+                    {
+                        return (T)new ComponentServerConfiguration();
+                    }
+                    else
+                    {
+                        return result;
+                    }
+                }
+                else
+                {
+                    success = true;
+                    return json;
+                }
+            }
+        }
+
+        public static T WriteComponentConfiguration<T>(T model, ulong serverId, bool overwrite = false) where T : ComponentServerConfiguration
+        {
+            string filePath = ServerConfigFolder + serverId.ToString() + "/" + model.Filename;
+            if (File.Exists(filePath))
+            {
+                if (overwrite)
+                {
+                    File.Delete(filePath);
+                    string json = JsonConvert.SerializeObject(model);
+                    File.WriteAllText(filePath, json);
+                    return GetComponentConfiguration(model, serverId, out bool result);
+                }
+                else
+                {
+                    return GetComponentConfiguration(model, serverId, out bool result);
+                }
+            }
+            else
+            {
+                string json = JsonConvert.SerializeObject(model);
+                File.WriteAllText(filePath, json);
+                return GetComponentConfiguration(model, serverId, out bool result);
+            }
+        }
     }
 }

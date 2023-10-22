@@ -40,11 +40,39 @@ namespace YetAnotherDiscordBot.ComponentSystem
                 }
                 CurrentComponents.Add(component);
                 component.OnAdded(BotShard);
-                component.Start();
-                successCounter++;
                 totalCounter++;
             }
+            foreach(Component c in CurrentComponents)
+            {
+                c.OnValidate();
+                if (CurrentComponents.Where(x => c.RequiredComponents.Contains(x)).ToList().Count == 0)
+                {
+                    Log.Error($"Component {c.Name} is missing required dependencies. \n List of dependencies: {string.Join(", ", c.RequiredComponents.Select(x => x.Name))}" );
+                    CurrentComponents.Remove(c);
+                    c.OnRemoved();
+                    continue;
+                }
+                if (CurrentComponents.Where(x => c.MutuallyExclusiveComponents.Contains(x)).ToList().Count > 0)
+                {
+                    Log.Error($"Component {c.Name} has mutually exclusive components already loaded. \n List of Mutually Exclusive Components: {string.Join(", ", c.MutuallyExclusiveComponents.Select(x => x.Name))}");
+                    CurrentComponents.Remove(c);
+                    c.OnRemoved();
+                    continue;
+                }
+                successCounter++;
+                c.OnValidated();
+            }
             Log.Info($"Successfully added {successCounter} out of {totalCounter} components to shard ID {BotShard.GuildID}");
+            int validatedTotal = 0;
+            int validatedSuccess = 0;
+            foreach(Component validated in CurrentComponents)
+            {
+                if (validated.Start())
+                {
+                    validatedSuccess++;
+                }
+                validatedTotal++;
+            }
         }
 
 

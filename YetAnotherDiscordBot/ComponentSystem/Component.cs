@@ -41,9 +41,29 @@ namespace YetAnotherDiscordBot.ComponentSystem
             _ownerShard = shard;
         }
 
-        public virtual void Start()
+        public virtual void OnRemoved()
         {
 
+        }
+
+        public virtual void OnShutdown()
+        {
+
+        }
+
+        public virtual void OnValidate()
+        {
+
+        }
+
+        public virtual void OnValidated()
+        {
+
+        }
+
+        public virtual bool Start()
+        {
+            return true;
         }
     }
 }

@@ -9,7 +9,5 @@ namespace YetAnotherDiscordBot.Configuration
     public class ComponentServerConfiguration : Configuration
     {
         public virtual string Filename { get; } = "config.json";
-
-
     }
 }

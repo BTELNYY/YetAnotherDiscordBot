@@ -108,6 +108,11 @@ namespace YetAnotherDiscordBot
 
         public void OnShutdown()
         {
+            Log.Info("Shutdown Shards...");
+            foreach (BotShard shard in BotToThread.Keys)
+            {
+                shard.OnShutdown();
+            }
             Log.Info("Logging out off Discord...");
             Client.LogoutAsync();
             Log.Info("Global Bot shutdown complete");

@@ -69,6 +69,20 @@ namespace YetAnotherDiscordBot
             }
         }
 
+
+        public ComponentManager ComponentManager
+        {
+            get
+            {
+                if(_componentManager == null)
+                {
+                    Log.Error("Attempted to access null Component Manager.");
+                    _componentManager = new ComponentManager(this);
+                }
+                return _componentManager;
+            }
+        }
+
         private ComponentManager? _componentManager;
 
         public BotShard(ulong guildId)
@@ -173,6 +187,11 @@ namespace YetAnotherDiscordBot
                     totalCounter++;
                     continue;
                 }
+                if(ComponentManager.CurrentComponents.Where(x => command.RequiredComponents.Contains(x)).Count() == 0)
+                {
+                    Log.Error($"Command {command.CommandName} cannot be added becuase it is missing required components. \nComponent list: {string.Join(", ", command.RequiredComponents.Select(x => x.Name))}");
+                    return;
+                }
                 bool commandBuildSuccess = BuildShardCommand(command);
                 if (!commandBuildSuccess)
                 {
@@ -187,6 +206,11 @@ namespace YetAnotherDiscordBot
                 }
             }
             Log.Info($"Added {successCounter} out of {totalCounter} of commands to GuildID {GuildID}");
+        }
+
+        public void OnShutdown()
+        {
+            Log.Info("Attempting to shut down thread " + GuildID.ToString());
         }
     }
 }

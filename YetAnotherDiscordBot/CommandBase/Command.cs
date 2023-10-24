@@ -5,21 +5,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YetAnotherDiscordBot.ComponentSystem;
 
 namespace YetAnotherDiscordBot.CommandBase
 {
     public class Command
     {
-        public virtual string CommandName { get; private set; } = "commandname";
-        public virtual string Description { get; private set; } = "Command Description";
-        public virtual bool IsDMEnabled { get; private set; } = false;
-        public virtual GuildPermission RequiredPermission { get; private set; }
-        public virtual List<CommandOptionsBase> Options { get; private set; } = new List<CommandOptionsBase>();
-        public virtual bool IsDefaultEnabled { get; private set; } = true;
-        public virtual List<string> Aliases { get; private set; } = new();
-        public virtual bool PrivateCommand { get; private set; } = false;
-        public virtual ulong PrivateServerID { get; private set; } = 0;
+        public virtual string CommandName { get; } = "commandname";
+        public virtual string Description { get; } = "Command Description";
+        public virtual bool IsDMEnabled { get; } = false;
+        public virtual GuildPermission RequiredPermission { get; }
+        public virtual List<CommandOptionsBase> Options { get; } = new List<CommandOptionsBase>();
+        public virtual bool IsDefaultEnabled { get; } = true;
+        public virtual List<string> Aliases { get; } = new();
+        public virtual bool PrivateCommand { get; } = false;
+        public virtual ulong PrivateServerID { get; } = 0;
         public BotShard? ShardWhoRanMe { get; private set; }
+        public virtual List<Component> RequiredComponents { get; } = new List<Component>();
         public virtual void Execute(SocketSlashCommand command)
         {
             if(command.GuildId.HasValue)

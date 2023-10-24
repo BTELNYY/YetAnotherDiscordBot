@@ -42,26 +42,31 @@ namespace YetAnotherDiscordBot.ComponentSystem
                 component.OnAdded(BotShard);
                 totalCounter++;
             }
+            List<Component> invalidComponents = new();
             foreach(Component c in CurrentComponents)
             {
                 c.OnValidate();
-                if (CurrentComponents.Where(x => c.RequiredComponents.Contains(x)).ToList().Count == 0)
+                if (c.RequiredComponents.Count > 0 && CurrentComponents.Where(x => c.RequiredComponents.Contains(x)).ToList().Count == 0)
                 {
                     Log.Error($"Component {c.Name} is missing required dependencies. \n List of dependencies: {string.Join(", ", c.RequiredComponents.Select(x => x.Name))}" );
-                    CurrentComponents.Remove(c);
-                    c.OnRemoved();
+                    invalidComponents.Add(c);
                     continue;
                 }
-                if (CurrentComponents.Where(x => c.MutuallyExclusiveComponents.Contains(x)).ToList().Count > 0)
+                if (c.MutuallyExclusiveComponents.Count > 0 && CurrentComponents.Where(x => c.MutuallyExclusiveComponents.Contains(x)).ToList().Count > 0)
                 {
                     Log.Error($"Component {c.Name} has mutually exclusive components already loaded. \n List of Mutually Exclusive Components: {string.Join(", ", c.MutuallyExclusiveComponents.Select(x => x.Name))}");
-                    CurrentComponents.Remove(c);
-                    c.OnRemoved();
+                    invalidComponents.Add(c);
                     continue;
                 }
                 successCounter++;
                 c.OnValidated();
             }
+            invalidComponents.ForEach(c =>
+            {
+                CurrentComponents.Remove(c);
+                c.OnRemoved();
+            });
+            invalidComponents.Clear();
             Log.Info($"Successfully added {successCounter} out of {totalCounter} components to shard ID {BotShard.GuildID}");
             int validatedTotal = 0;
             int validatedSuccess = 0;
@@ -73,6 +78,7 @@ namespace YetAnotherDiscordBot.ComponentSystem
                 }
                 validatedTotal++;
             }
+            Log.Info($"Successfully started {validatedSuccess} out of {validatedTotal} validated components. Total components listed was {totalCounter}");
         }
 
 
@@ -100,6 +106,16 @@ namespace YetAnotherDiscordBot.ComponentSystem
                     return component;
                 }
             }
+        }
+
+        public void OnShutdown()
+        {
+            CurrentComponents.ForEach(c =>
+            {
+                c.OnShutdown();
+                c.OnRemoved();
+            });
+            CurrentComponents.Clear();
         }
     }
 }

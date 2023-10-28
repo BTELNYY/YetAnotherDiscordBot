@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YetAnotherDiscordBot.CommandBase;
 
 namespace YetAnotherDiscordBot.ComponentSystem
 {
@@ -46,17 +47,37 @@ namespace YetAnotherDiscordBot.ComponentSystem
             foreach(Component c in CurrentComponents)
             {
                 c.OnValidate();
-                if (c.RequiredComponents.Count > 0 && CurrentComponents.Where(x => c.RequiredComponents.Contains(x)).ToList().Count == 0)
+                if (c.RequiredComponents.Count > 0 && CurrentComponents.Where(x => c.RequiredComponents.Contains(x.GetType())).ToList().Count == 0)
                 {
                     Log.Error($"Component {c.Name} is missing required dependencies. \n List of dependencies: {string.Join(", ", c.RequiredComponents.Select(x => x.Name))}" );
                     invalidComponents.Add(c);
                     continue;
                 }
-                if (c.MutuallyExclusiveComponents.Count > 0 && CurrentComponents.Where(x => c.MutuallyExclusiveComponents.Contains(x)).ToList().Count > 0)
+                if (c.MutuallyExclusiveComponents.Count > 0 && CurrentComponents.Where(x => c.MutuallyExclusiveComponents.Contains(x.GetType())).ToList().Count > 0)
                 {
                     Log.Error($"Component {c.Name} has mutually exclusive components already loaded. \n List of Mutually Exclusive Components: {string.Join(", ", c.MutuallyExclusiveComponents.Select(x => x.Name))}");
                     invalidComponents.Add(c);
                     continue;
+                }
+                foreach(Type cmd in c.ImportedCommands)
+                {
+                    if (!cmd.IsSubclassOf(typeof(Command)))
+                    {
+                        Log.Warning($"Type {cmd.FullName} isn't a subclass of Type command.");
+                        continue;
+                    }
+                    Command? command = (Command?)Activator.CreateInstance(cmd);
+                    if(command == null)
+                    {
+                        Log.Warning($"Command for type {cmd.FullName} is null, activator failed.");
+                        continue;
+                    }
+                    bool success = BotShard.BuildShardCommand(command);
+                    if (!success)
+                    {
+                        Log.Warning($"Failure to build command  {command.CommandName}");
+                        continue;
+                    }
                 }
                 successCounter++;
                 c.OnValidated();

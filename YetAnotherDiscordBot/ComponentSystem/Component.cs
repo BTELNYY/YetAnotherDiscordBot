@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-
+using YetAnotherDiscordBot.Commands;
 
 namespace YetAnotherDiscordBot.ComponentSystem
 {
@@ -14,9 +14,11 @@ namespace YetAnotherDiscordBot.ComponentSystem
 
         public virtual string Description { get; } = "";
 
-        public virtual List<Component> RequiredComponents { get; } = new List<Component>();
+        public virtual List<Type> RequiredComponents { get; } = new List<Type>();
 
-        public virtual List<Component> MutuallyExclusiveComponents { get; } = new List<Component>();
+        public virtual List<Type> MutuallyExclusiveComponents { get; } = new List<Type>();
+
+        public virtual List<Type> ImportedCommands { get; } = new List<Type>();
 
         private BotShard? _ownerShard;
 

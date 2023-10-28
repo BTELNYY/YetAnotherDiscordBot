@@ -18,8 +18,6 @@ namespace YetAnotherDiscordBot.CommandBase
         public virtual List<CommandOptionsBase> Options { get; } = new List<CommandOptionsBase>();
         public virtual bool IsDefaultEnabled { get; } = true;
         public virtual List<string> Aliases { get; } = new();
-        public virtual bool PrivateCommand { get; } = false;
-        public virtual ulong PrivateServerID { get; } = 0;
         public BotShard? ShardWhoRanMe { get; private set; }
         public virtual List<Component> RequiredComponents { get; } = new List<Component>();
         public virtual void Execute(SocketSlashCommand command)

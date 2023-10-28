@@ -82,7 +82,7 @@ namespace YetAnotherDiscordBot.Service
             {
                 return GetFileGlobalConfiguration();
             }
-            string json = JsonConvert.SerializeObject(new GlobalConfiguration());
+            string json = JsonConvert.SerializeObject(new GlobalConfiguration(), Formatting.Indented);
             File.WriteAllText(GlobalConfigFile, json);
             return new GlobalConfiguration();
         }
@@ -120,7 +120,7 @@ namespace YetAnotherDiscordBot.Service
             {
                 Directory.CreateDirectory(folderPath);
             }
-            string json = JsonConvert.SerializeObject(new ServerConfiguration());
+            string json = JsonConvert.SerializeObject(new ServerConfiguration(), Formatting.Indented);
             File.WriteAllText(folderPath + "/config.json", json);
             return new ServerConfiguration();
         }
@@ -182,7 +182,7 @@ namespace YetAnotherDiscordBot.Service
                 if (overwrite)
                 {
                     File.Delete(filePath);
-                    string json = JsonConvert.SerializeObject(model);
+                    string json = JsonConvert.SerializeObject(model, Formatting.Indented);
                     File.WriteAllText(filePath, json);
                     return GetComponentConfiguration(model, serverId, out bool result);
                 }
@@ -193,7 +193,7 @@ namespace YetAnotherDiscordBot.Service
             }
             else
             {
-                string json = JsonConvert.SerializeObject(model);
+                string json = JsonConvert.SerializeObject(model, Formatting.Indented);
                 File.WriteAllText(filePath, json);
                 return GetComponentConfiguration(model, serverId, out bool result);
             }

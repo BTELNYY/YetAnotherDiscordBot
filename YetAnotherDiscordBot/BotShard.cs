@@ -52,7 +52,9 @@ namespace YetAnotherDiscordBot
             {
                 if(_serverConfig == null)
                 {
-                    return ConfigurationService.GetServerConfiguration(GuildID);
+                     ServerConfiguration config = ConfigurationService.GetServerConfiguration(GuildID);
+                    _serverConfig = config;
+                    return _serverConfig;
                 }
                 else
                 {

@@ -52,14 +52,7 @@ namespace YetAnotherDiscordBot.Handlers
             try
             {
                 Log.Info("Building Command: " + command.CommandName);
-                if (command.PrivateCommand)
-                {
-                    client.GetGuild(command.PrivateServerID).CreateApplicationCommandAsync(scb.Build());
-                }
-                else
-                {
-                    client.CreateGlobalApplicationCommandAsync(scb.Build());
-                }
+                client.CreateGlobalApplicationCommandAsync(scb.Build());
             }
             catch (HttpException exception)
             {

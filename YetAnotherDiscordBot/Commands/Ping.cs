@@ -17,6 +17,7 @@ namespace YetAnotherDiscordBot.Commands
         public override GuildPermission RequiredPermission => GuildPermission.UseApplicationCommands;
         public override async void Execute(SocketSlashCommand command)
         {
+            base.Execute(command);
             if(ShardWhoRanMe == null)
             {
                 Log.Error("ShardWhoRanMe is null but a command went off on it.");

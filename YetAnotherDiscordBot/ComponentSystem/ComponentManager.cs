@@ -11,6 +11,21 @@ namespace YetAnotherDiscordBot.ComponentSystem
     {
         public List<Component> CurrentComponents = new List<Component>();
 
+        public T GetComponent<T>(out bool success) where T : Component
+        {
+            Component? component = CurrentComponents.Find(x => x.GetType() == typeof(T));
+            if(component != null)
+            {
+                if(component is T result)
+                {
+                    success = true;
+                    return result;
+                }
+            }
+            success = false;
+            return (T)new Component();
+        }
+
         public BotShard BotShard
         {
             get
@@ -72,7 +87,12 @@ namespace YetAnotherDiscordBot.ComponentSystem
                         Log.Warning($"Command for type {cmd.FullName} is null, activator failed.");
                         continue;
                     }
-                    bool success = BotShard.BuildShardCommand(command);
+                    if (CurrentComponents.Where(x => command.RequiredComponents.Contains(x.GetType())).Count() == 0)
+                    {
+                        Log.Error($"Command {command.CommandName} cannot be added becuase it is missing required components. \nComponent list: {string.Join(", ", command.RequiredComponents.Select(x => x.Name))}");
+                        continue;
+                    }
+                    bool success = BotShard.BuildShardCommand(command).Result;
                     if (!success)
                     {
                         Log.Warning($"Failure to build command  {command.CommandName}");

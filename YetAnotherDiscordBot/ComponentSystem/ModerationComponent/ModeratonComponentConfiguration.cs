@@ -15,6 +15,10 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 
         public ulong ServerID = 0;
 
+        public string LockdownWarningVideoURL = "https://cdn.discordapp.com/attachments/887518399939350538/941157854734323712/SCP_SL_Light_Containment_Zone_Decontamination_30_Seconds.mp4";
+
+        public int LockdownDelay = 30;
+
         public Translations TranslationsData = new();
 
         public struct Translations
@@ -23,13 +27,23 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 
             public string AutherText = "Author";
 
+            public string TargetText = "Target";
+
             public string ActionText = "Action";
 
             public string UntilText = "Until";
 
             public string ChannelText = "Channel";
 
+            public string LockdownState = "Locked";
+
             public string DMText = "You were punished in {serverName}. \nAction: {action} \nReason: {reason} \nAuthor: {author}";
+
+            public string LockdownWarning = "Danger, <#{channelId}> overall decontamination in T-minus {length} seconds. All checkpoint doors have been permanently opened, please evacuate immediately. \n{url}";
+
+            public string LockdownStarted = "Channel is locked down and ready for decontamination, the removal of cringe has now begun.";
+
+            public string LockdownEnded = "Channel lockdown lifted.";
 
             public ActionTranslations ActionTranslationsData = new();
 

@@ -21,5 +21,10 @@ namespace YetAnotherDiscordBot.CommandBase
             Required = required;
             Description = description;
         }
+
+        public CommandOptionsBase()
+        {
+
+        }
     }
 }

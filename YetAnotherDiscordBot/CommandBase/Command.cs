@@ -19,7 +19,7 @@ namespace YetAnotherDiscordBot.CommandBase
         public virtual bool IsDefaultEnabled { get; } = true;
         public virtual List<string> Aliases { get; } = new();
         public BotShard? ShardWhoRanMe { get; private set; }
-        public virtual List<Component> RequiredComponents { get; } = new List<Component>();
+        public virtual List<Type> RequiredComponents { get; } = new List<Type>();
         public virtual void Execute(SocketSlashCommand command)
         {
             if(command.GuildId.HasValue)

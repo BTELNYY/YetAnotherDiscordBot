@@ -103,7 +103,7 @@ namespace YetAnotherDiscordBot
 
         public void OnSlashCommandExecuted(SocketSlashCommand command)
         {
-            if (!CommandHandler.Commands.ContainsKey(command.CommandName) || PerBotCommands.ContainsKey(command.CommandName))
+            if (!CommandHandler.Commands.ContainsKey(command.CommandName) && !PerBotCommands.ContainsKey(command.CommandName))
             {
                 Log.Error("Command Not registered in Dict: " + command.CommandName);
                 command.RespondAsync("Sorry, this command is not registered internally, contact the developer about this.");
@@ -131,7 +131,7 @@ namespace YetAnotherDiscordBot
             return;
         }
 
-        public bool BuildShardCommand(Command command)
+        public async Task<bool> BuildShardCommand(Command command)
         {
             SlashCommandBuilder scb = new();
             scb.WithName(command.CommandName);
@@ -140,7 +140,6 @@ namespace YetAnotherDiscordBot
             command.BuildOptions();
             foreach (CommandOptionsBase cop in command.Options)
             {
-                Log.Debug("Building option: " + cop.Name);
                 scb.AddOption(cop.Name, cop.OptionType, cop.Description, cop.Required);
             }
             scb.DefaultMemberPermissions = command.RequiredPermission;
@@ -155,7 +154,8 @@ namespace YetAnotherDiscordBot
             try
             {
                 Log.Info("Building Command: " + command.CommandName);
-                TargetGuild.CreateApplicationCommandAsync(scb.Build());
+                SocketApplicationCommand result = await TargetGuild.CreateApplicationCommandAsync(scb.Build());
+                Log.Debug($"{result.Id}, {result.Name}, {result.Type}");
             }
             catch (HttpException exception)
             {
@@ -189,12 +189,12 @@ namespace YetAnotherDiscordBot
                     totalCounter++;
                     continue;
                 }
-                if(ComponentManager.CurrentComponents.Where(x => command.RequiredComponents.Contains(x)).Count() == 0)
+                if(ComponentManager.CurrentComponents.Where(x => command.RequiredComponents.Contains(x.GetType())).Count() == 0)
                 {
                     Log.Error($"Command {command.CommandName} cannot be added becuase it is missing required components. \nComponent list: {string.Join(", ", command.RequiredComponents.Select(x => x.Name))}");
                     return;
                 }
-                bool commandBuildSuccess = BuildShardCommand(command);
+                bool commandBuildSuccess = BuildShardCommand(command).Result;
                 if (!commandBuildSuccess)
                 {
                     Log.Warning($"Failed to add command to shard. (Failed to build) Name: {commandString}, GuildID: {GuildID}");
@@ -207,7 +207,7 @@ namespace YetAnotherDiscordBot
                     totalCounter++;
                 }
             }
-            Log.Info($"Added {successCounter} out of {totalCounter} of commands to GuildID {GuildID}");
+            //Log.Info($"Added {successCounter} out of {totalCounter} of commands to GuildID {GuildID}");
         }
 
         public void OnShutdown()

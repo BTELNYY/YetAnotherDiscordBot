@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Discord;
-using System.Threading.Tasks;
-using YetAnotherDiscordBot.Service;
+﻿using Discord;
 using Discord.WebSocket;
-using System.Threading.Channels;
+using YetAnotherDiscordBot.Service;
 
 namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
 {

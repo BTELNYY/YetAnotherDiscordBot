@@ -21,10 +21,11 @@ namespace YetAnotherDiscordBot.Handlers
         public static void GlobalCommandInit()
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
-            Log.Info("Registering Global Commands...");
+            Log.GlobalInfo("Registering Global Commands...");
             BuildCommand(new Ping());
+            BuildCommand(new GetAllComponents());
             stopwatch.Stop();
-            Log.Info("Done! Took {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
+            Log.GlobalInfo("Done! Took {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
         }
 
         public static void BuildCommand(Command command)
@@ -37,31 +38,31 @@ namespace YetAnotherDiscordBot.Handlers
             command.BuildOptions();
             foreach (CommandOptionsBase cop in command.Options)
             {
-                Log.Debug("Building option: " + cop.Name);
+                Log.GlobalDebug("Building option: " + cop.Name);
                 scb.AddOption(cop.Name, cop.OptionType, cop.Description, cop.Required);
             }
             scb.DefaultMemberPermissions = command.RequiredPermission;
             scb.IsDefaultPermission = command.IsDefaultEnabled;
             command.BuildAliases();
             Commands.Add(command.CommandName, command);
-            Log.Info("Registering Aliases for: " + command.CommandName + "; Alias: " + string.Join(", ", command.Aliases.ToArray()));
+            Log.GlobalInfo("Registering Aliases for: " + command.CommandName + "; Alias: " + string.Join(", ", command.Aliases.ToArray()));
             foreach (string alias in command.Aliases)
             {
                 Commands.Add(alias, command);
             }
             try
             {
-                Log.Info("Building Command: " + command.CommandName);
+                Log.GlobalInfo("Building Command: " + command.CommandName);
                 client.CreateGlobalApplicationCommandAsync(scb.Build());
             }
             catch (HttpException exception)
             {
                 var json = JsonConvert.SerializeObject(exception.Errors, Formatting.Indented);
-                Log.Error(json);
+                Log.GlobalError(json);
             }
             catch (Exception exception)
             {
-                Log.Error("Failed to build command: " + command.CommandName + "\n Error: \n " + exception.ToString());
+                Log.GlobalError("Failed to build command: " + command.CommandName + "\n Error: \n " + exception.ToString());
             }
         }
 
@@ -73,7 +74,7 @@ namespace YetAnotherDiscordBot.Handlers
             }
             else
             {
-                Log.Error("Guild isn't managed by a thread!");
+                Log.GlobalError("Guild isn't managed by a thread!");
                 if (command.GuildId.HasValue)
                 {
                     Program.StartShard(command.GuildId.Value);

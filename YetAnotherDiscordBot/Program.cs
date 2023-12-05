@@ -6,7 +6,6 @@ using System.Net.Http.Headers;
 using System.Reactive.Concurrency;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-
 using YetAnotherDiscordBot.Handlers;
 using YetAnotherDiscordBot.Service;
 
@@ -46,7 +45,7 @@ namespace YetAnotherDiscordBot
 
         public async Task MainAsync(string[] args)
         {
-            Log.Info("Starting up!");
+            Log.GlobalInfo("Starting up!");
             stopwatch = Stopwatch.StartNew();
             DiscordSocketConfig config = new()
             {
@@ -72,7 +71,7 @@ namespace YetAnotherDiscordBot
 
         private Task ApplicationCommandCreated(SocketApplicationCommand arg)
         {
-            Log.Debug("Application command created!");
+            Log.GlobalDebug("Application command created!");
             return Task.CompletedTask;
         }
 
@@ -81,53 +80,53 @@ namespace YetAnotherDiscordBot
             switch (msg.Severity)
             {
                 case LogSeverity.Error:
-                    Log.Error(msg.Message + "\n" + msg.Exception);
+                    Log.GlobalError(msg.Message + "\n" + msg.Exception);
                     break;
                 case LogSeverity.Info:
-                    Log.Info(msg.Message + "\n" + msg.Exception);
+                    Log.GlobalInfo(msg.Message + "\n" + msg.Exception);
                     break;
                 case LogSeverity.Warning:
-                    Log.Warning(msg.Message + "\n" + msg.Exception);
+                    Log.GlobalWarning(msg.Message + "\n" + msg.Exception);
                     break;
                 case LogSeverity.Verbose:
-                    Log.Verbose(msg.Message + "\n" + msg.Exception);
+                    Log.GlobalVerbose(msg.Message + "\n" + msg.Exception);
                     break;
                 case LogSeverity.Critical:
-                    Log.Critical(msg.Message + "\n" + msg.Exception);
+                    Log.GlobalCritical(msg.Message + "\n" + msg.Exception);
                     break;
                 case LogSeverity.Debug:
-                    Log.Debug(msg.Message + "\n" + msg.Exception);
+                    Log.GlobalDebug(msg.Message + "\n" + msg.Exception);
                     break;
                 default:
-                    Log.Warning("The bellow message failed to be caught by any switch, default warning used.");
-                    Log.Warning(msg.Message + "\n" + msg.Exception);
+                    Log.GlobalWarning("The bellow message failed to be caught by any switch, default warning used.");
+                    Log.GlobalWarning(msg.Message + "\n" + msg.Exception);
                     break;
             }
             return Task.CompletedTask;
         }
 
-        public void OnShutdown()
+        public static void OnShutdown()
         {
-            Log.Info("Shutdown Shards...");
+            Log.GlobalInfo("Shutdown Shards...");
             foreach (BotShard shard in BotToThread.Keys)
             {
                 shard.OnShutdown();
             }
-            Log.Info("Logging out off Discord...");
+            Log.GlobalInfo("Logging out off Discord...");
             Client.LogoutAsync();
-            Log.Info("Global Bot shutdown complete");
+            Log.GlobalInfo("Global Bot shutdown complete");
         }
 
         public Task OnReady()
         {
             CommandHandler.GlobalCommandInit();
-            Log.Info("Pre-Server startup Took {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
-            Log.Info("Starting " + Client.Guilds.Count.ToString() + " threads. (One thread per guild)");
+            Log.GlobalInfo("Pre-Server startup Took {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
+            Log.GlobalInfo("Starting " + Client.Guilds.Count.ToString() + " threads. (One thread per guild)");
             foreach (SocketGuild guild in Client.Guilds)
             {
                 StartShard(guild.Id);
             }
-            Log.Info("Full startup time was {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
+            Log.GlobalInfo("Full startup time was {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
             return Task.CompletedTask;
         }
 

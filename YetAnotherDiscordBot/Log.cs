@@ -1,7 +1,135 @@
-﻿namespace YetAnotherDiscordBot
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using YetAnotherDiscordBot.Service;
+
+namespace YetAnotherDiscordBot
 {
     public class Log
     {
+        private ulong _discordTarget;
+
+        public ulong DiscordTarget
+        {
+            get
+            {
+                return _discordTarget;
+            }
+        }
+
+        public string FilePath
+        {
+            get
+            {
+                return ConfigurationService.ServerConfigFolder + DiscordTarget.ToString() + "/logs/";
+            }
+        }
+
+        public string FileName
+        {
+            get
+            {
+                string date = DateTime.Now.ToString("dd-MM-yyyy");
+                return date + ".log";
+            }
+        }
+
+        public Log(ulong discordID)
+        {
+            _discordTarget = discordID;
+            Directory.CreateDirectory(FilePath);
+        }
+
+        public void Fatal(string message)
+        {
+            Write(LogLevel.Fatal_Error, message);
+        }
+
+        public void Critical(string message)
+        {
+            Write(LogLevel.Critical, message);
+        }
+
+        public void Error(string message)
+        {
+            Write(LogLevel.Error, message);
+        }
+
+        public void Warning(string message)
+        {
+            Write(LogLevel.Warning, message);
+        }
+
+        public void Info(string message)
+        {
+            Write(LogLevel.Info, message);
+        }
+
+        public void Debug(string message)
+        {
+            Write(LogLevel.Debug, message);
+        }
+
+        public void Verbose(string message)
+        {
+            Write(LogLevel.Verbose, message);
+        }
+
+        public void Write(LogLevel level, string message)
+        {
+            string time = DateTime.Now.ToString("hh\\:mm\\:ss");
+            string file = FilePath + FileName;
+            if(DiscordTarget == 0)
+            {
+                GlobalWarning("Discord Target is 0, writing to global log. This should generally not happen.");
+                file = InternalConfig.LogPath + FileName;
+            }
+            StreamWriter sw = new StreamWriter(file, append: true);
+            sw.Write("[" + time + $" {level.ToString().ToUpper().Replace("_", " ")}]: " + message + "\n");
+            sw.Close();
+            WriteConsole(level, message, DiscordTarget);
+        }
+
+        public static void WriteConsole(LogLevel level, string message, ulong id = 0)
+        {
+            ConsoleColor matchedColor = ConsoleColor.White;
+            switch (level)
+            {
+                case LogLevel.Fatal_Error:
+                    matchedColor = ConsoleColor.DarkRed;
+                    break;
+                case LogLevel.Critical:
+                    matchedColor = ConsoleColor.DarkYellow;
+                    break;
+                case LogLevel.Error:
+                    matchedColor = ConsoleColor.Red;
+                    break;
+                case LogLevel.Warning:
+                    matchedColor = ConsoleColor.Yellow;
+                    break;
+                case LogLevel.Debug:
+                    matchedColor = ConsoleColor.Gray;
+                    break;
+                case LogLevel.Verbose:
+                    matchedColor = ConsoleColor.Gray;
+                    break;
+            }
+            Console.ForegroundColor = matchedColor;
+            string time = DateTime.Now.ToString("hh\\:mm\\:ss");
+            string messageFormatted = "";
+            if (id != 0)
+            {
+                messageFormatted = "[" + time + $" {level.ToString().ToUpper().Replace("_", " ")} {id}]: " + message;
+            }
+            else
+            {
+                messageFormatted = "[" + time + $" {level.ToString().ToUpper().Replace("_", " ")}]: " + message;
+            }
+            Console.WriteLine(messageFormatted);
+        }
+
         public static void WriteLineColor(string msg, ConsoleColor color)
         {
             Console.ForegroundColor = color;
@@ -9,7 +137,7 @@
             Console.ResetColor();
         }
 
-        public static void Success(string msg)
+        public static void GlobalSuccess(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -29,7 +157,7 @@
             Console.ResetColor();
         }
 
-        public static void Error(string msg)
+        public static void GlobalError(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -49,7 +177,7 @@
             Console.ResetColor();
         }
 
-        public static void Fatal(string msg)
+        public static void GlobalFatal(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -69,7 +197,7 @@
             Console.ResetColor();
         }
 
-        public static void Warning(string msg)
+        public static void GlobalWarning(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -89,7 +217,7 @@
             Console.ResetColor();
         }
 
-        public static void Info(string msg)
+        public static void GlobalInfo(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -109,7 +237,7 @@
             Console.ResetColor();
         }
 
-        public static void Debug(string msg)
+        public static void GlobalDebug(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -129,7 +257,7 @@
             Console.ResetColor();
         }
 
-        public static void Verbose(string msg)
+        public static void GlobalVerbose(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
@@ -149,13 +277,13 @@
             Console.ResetColor();
         }
 
-        public static void Critical(string msg)
+        public static void GlobalCritical(string msg)
         {
             if (!InternalConfig.EnableLogging)
             {
                 return;
             }
-            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             string date = DateTime.Now.ToString("dd-MM-yyyy");
             string time = DateTime.Now.ToString("hh\\:mm\\:ss");
             string file = InternalConfig.LogPath + date + ".log";
@@ -168,5 +296,16 @@
             sw.Close();
             Console.ResetColor();
         }
+    }
+
+    public enum LogLevel
+    {
+        Fatal_Error,
+        Critical,
+        Error,
+        Warning,
+        Info,
+        Debug,
+        Verbose,
     }
 }

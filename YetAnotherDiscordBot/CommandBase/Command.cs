@@ -20,6 +20,29 @@ namespace YetAnotherDiscordBot.CommandBase
         public virtual List<string> Aliases { get; } = new();
         public BotShard? ShardWhoRanMe { get; private set; }
         public virtual List<Type> RequiredComponents { get; } = new List<Type>();
+
+        private Log? _log;
+
+        public Log Log
+        {
+            get
+            {
+                if(_log == null)
+                {
+                    if(ShardWhoRanMe == null)
+                    {
+                        _log = new Log(0);
+                    }
+                    else
+                    {
+                        _log = new Log(ShardWhoRanMe.GuildID);
+                    }
+                }
+                return _log;
+            }
+        }
+
+
         public virtual void Execute(SocketSlashCommand command)
         {
             if(command.GuildId.HasValue)
@@ -28,7 +51,7 @@ namespace YetAnotherDiscordBot.CommandBase
             }
             else
             {
-                Log.Warning("Ran a command without a guildid, probably a dm command. this is not allowed.");
+                Log.GlobalWarning("Ran a command without a guildid, probably a dm command. this is not allowed.");
             }
         }
 
@@ -55,7 +78,7 @@ namespace YetAnotherDiscordBot.CommandBase
                         {
                             if (array[counter] != null)
                             {
-                                Log.Error("Command options have been duplicated.");
+                                Log.GlobalError("Command options have been duplicated.");
                             }
                             array[counter] = option;
                         }
@@ -71,7 +94,7 @@ namespace YetAnotherDiscordBot.CommandBase
             Type? commandType = Type.GetType(className);
             if(commandType == null)
             {
-                Log.Error("Can't get a command class by name! Name: " + className);
+                Log.GlobalError("Can't get a command class by name! Name: " + className);
                 success = false;
                 return new Command();
             }
@@ -80,7 +103,7 @@ namespace YetAnotherDiscordBot.CommandBase
                 Command? command = Activator.CreateInstance(commandType) as Command;
                 if(command == null)
                 {
-                    Log.Error("Failed to create class instance by Type reference! Found type but couldn't create class instance. Name: " + className);
+                    Log.GlobalError("Failed to create class instance by Type reference! Found type but couldn't create class instance. Name: " + className);
                     success = false;
                     return new Command();
                 }

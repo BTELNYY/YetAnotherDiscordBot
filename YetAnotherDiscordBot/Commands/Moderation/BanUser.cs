@@ -9,7 +9,7 @@ using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.ComponentSystem;
 using YetAnotherDiscordBot.ComponentSystem.ModerationComponent;
 
-namespace YetAnotherDiscordBot.Commands
+namespace YetAnotherDiscordBot.Commands.Moderation
 {
     public class BanUser : Command
     {
@@ -24,7 +24,7 @@ namespace YetAnotherDiscordBot.Commands
         public override async void Execute(SocketSlashCommand command)
         {
             base.Execute(command);
-            if(ShardWhoRanMe is null)
+            if (ShardWhoRanMe is null)
             {
                 return;
             }
@@ -36,7 +36,7 @@ namespace YetAnotherDiscordBot.Commands
                 return;
             }
             SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
-            SocketGuildUser user = (SocketGuildUser) options[0].Value;
+            SocketGuildUser user = (SocketGuildUser)options[0].Value;
             SocketGuildUser author = ShardWhoRanMe.TargetGuild.GetUser(command.User.Id);
             string reason = (string)options[1].Value;
             bool senddm = (bool)options[2].Value;

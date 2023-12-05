@@ -41,6 +41,20 @@ namespace YetAnotherDiscordBot.ComponentSystem
             _botShard = shard;
         }
 
+        private Log? _log;
+
+        public Log Log
+        {
+            get
+            {
+                if (_log == null)
+                {
+                    _log = new Log(_botShard.GuildID);
+                }
+                return _log;
+            }
+        }
+
         public void Start()
         {
             int totalCounter = 0;
@@ -128,7 +142,7 @@ namespace YetAnotherDiscordBot.ComponentSystem
             Type? type = Type.GetType(name);
             if(type == null)
             {
-                Log.Error("Failed to find Component by name. Name: " + name);
+                Log.GlobalError("Failed to find Component by name. Name: " + name);
                 success = false;
                 return new Component();
             }
@@ -137,7 +151,7 @@ namespace YetAnotherDiscordBot.ComponentSystem
                 Component? component = (Component?)Activator.CreateInstance(type);
                 if(component == null)
                 {
-                    Log.Error("Type specified isnt a component. Name: " + name);
+                    Log.GlobalError("Type specified isnt a component. Name: " + name);
                     success = false;
                     return new Component();
                 }

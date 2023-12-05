@@ -37,7 +37,7 @@ namespace YetAnotherDiscordBot.Service
 
             await tcs.Task;
             OnShutdownSignal?.Invoke();
-            Log.Info("Killing process!");
+            Log.GlobalInfo("Killing process!");
             Process.GetCurrentProcess().Kill();
         }
     }

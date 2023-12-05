@@ -3,10 +3,13 @@ using Discord.Rest;
 using Discord.WebSocket;
 using System.Transactions;
 using YetAnotherDiscordBot.Commands;
+using YetAnotherDiscordBot.Commands.Moderation;
 using YetAnotherDiscordBot.Service;
+using YetAnotherDiscordBot.Attributes;
 
 namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 {
+    [BotComponent]
     public class ModerationComponent : Component
     {
         public override string Name => nameof(ModerationComponent);

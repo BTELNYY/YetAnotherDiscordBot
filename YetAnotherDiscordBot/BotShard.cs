@@ -87,6 +87,20 @@ namespace YetAnotherDiscordBot
 
         private ComponentManager? _componentManager;
 
+        private Log? _log;
+
+        public Log Log
+        {
+            get
+            {
+                if(_log == null)
+                {
+                    _log = new Log(GuildID);
+                }
+                return _log;
+            }
+        }
+
         public BotShard(ulong guildId)
         {
             GuildID = guildId;
@@ -207,7 +221,7 @@ namespace YetAnotherDiscordBot
                     totalCounter++;
                 }
             }
-            //Log.Info($"Added {successCounter} out of {totalCounter} of commands to GuildID {GuildID}");
+            Log.Info($"Added {successCounter} out of {totalCounter} of commands to GuildID {GuildID}");
         }
 
         public void OnShutdown()

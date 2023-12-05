@@ -12,6 +12,27 @@
 
         public virtual List<Type> ImportedCommands { get; } = new List<Type>();
 
+        private Log? _log;
+
+        public Log Log
+        {
+            get
+            {
+                if(_log == null)
+                {
+                    if (_ownerShard == null)
+                    {
+                        _log = new Log(0);
+                    }
+                    else
+                    {
+                        _log = new Log(OwnerShard.GuildID);
+                    }
+                }
+                return _log;
+            }
+        }
+
         private BotShard? _ownerShard;
 
         public BotShard OwnerShard 
@@ -20,7 +41,7 @@
             {
                 if(_ownerShard == null)
                 {
-                    Log.Error("Tried to get OwnerShard on not ready component.");
+                    Log.GlobalError("Tried to get OwnerShard on not ready component.");
                     throw new NotSupportedException("Can't get BotShard on non-ready components. Run OnAdded first.");
                 }
                 else
@@ -33,6 +54,7 @@
         public virtual void OnAdded(BotShard shard)
         {
             _ownerShard = shard;
+            _log = new Log(_ownerShard.GuildID);
         }
 
         public virtual void OnRemoved()

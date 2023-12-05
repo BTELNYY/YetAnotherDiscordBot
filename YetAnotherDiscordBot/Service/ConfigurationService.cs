@@ -56,7 +56,7 @@ namespace YetAnotherDiscordBot.Service
         {
             if (!File.Exists(GlobalConfigFile))
             {
-                Log.Error("Global configuration file does not exist!");
+                Log.GlobalError("Global configuration file does not exist!");
                 _cachedGlobalConfiguration = CreateGlobalConfiguration();
                 return _cachedGlobalConfiguration;
             }
@@ -66,7 +66,7 @@ namespace YetAnotherDiscordBot.Service
                 GlobalConfiguration? config = JsonConvert.DeserializeObject<GlobalConfiguration>(data);
                 if(config == null)
                 {
-                    Log.Error("Failed to get GlobalConfig from string!");
+                    Log.GlobalError("Failed to get GlobalConfig from string!");
                     return CreateGlobalConfiguration();
                 }
                 else
@@ -104,7 +104,7 @@ namespace YetAnotherDiscordBot.Service
             ServerConfiguration? config = JsonConvert.DeserializeObject<ServerConfiguration>(data);
             if(config == null)
             {
-                Log.Error("Failure to get server data! ServerID: " + serverId.ToString());
+                Log.GlobalError("Failure to get server data! ServerID: " + serverId.ToString());
                 return new ServerConfiguration();
             }
             else

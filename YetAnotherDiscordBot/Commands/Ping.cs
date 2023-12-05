@@ -20,7 +20,7 @@ namespace YetAnotherDiscordBot.Commands
             base.Execute(command);
             if(ShardWhoRanMe == null)
             {
-                Log.Error("ShardWhoRanMe is null but a command went off on it.");
+                Log.GlobalError("ShardWhoRanMe is null but a command went off on it.");
                 return;
             }
             await command.RespondAsync("Pong!" + " Current ping is " + ShardWhoRanMe.Client.Latency + "ms");

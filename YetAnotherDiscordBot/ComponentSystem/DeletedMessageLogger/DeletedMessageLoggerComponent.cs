@@ -1,9 +1,11 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using YetAnotherDiscordBot.Service;
+using YetAnotherDiscordBot.Attributes;
 
 namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
 {
+    [BotComponent]
     public class DeletedMessageLoggerComponent : Component
     {
         public override string Name => nameof(DeletedMessageLoggerComponent);

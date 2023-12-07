@@ -117,6 +117,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             if(_targetChannel is null || user is null || author is null || reason is null)
             {
                 Log.Warning("Null in punish user.");
+                Log.Debug($"{_targetChannel} {user} {author} {reason}");
                 return false;
             }
             string punishmentText = GetTranslation(punishment);

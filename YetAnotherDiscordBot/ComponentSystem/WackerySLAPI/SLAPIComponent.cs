@@ -115,16 +115,26 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
                             name = s1.ID.ToString();
                         }
                     }
+
                     var embed = new EmbedBuilder
                     {
                         Title = name
                     };
                     List<string> playerNames = s1.GetPlayerNames().ToList();
-                    embed.WithDescription("Players currently online:\n```\n" + string.Join("\n", playerNames) + "```")
-                        .WithCurrentTimestamp()
-                        .WithColor(Color.Green)
-                        .AddField("Players online", playerNames.Count);
-                    Log.Debug("Embed created");
+                    if (s1.Online)
+                    {
+                        embed.WithDescription("Players currently online:\n```\n" + string.Join("\n", playerNames) + "```")
+                            .WithCurrentTimestamp()
+                            .WithColor(Color.Green)
+                            .AddField("Players online", playerNames.Count);
+                        Log.Debug("Embed created");
+                    }
+                    else
+                    {
+                        embed.WithDescription("Server is offline.");
+                        embed.Color = Color.Red;
+                        embed.WithCurrentTimestamp();
+                    }
                     embeds.Add(embed.Build());
                 }
             }

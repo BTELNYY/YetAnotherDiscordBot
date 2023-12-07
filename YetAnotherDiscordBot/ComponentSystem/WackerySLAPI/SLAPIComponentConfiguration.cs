@@ -15,12 +15,12 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
 
         public Dictionary<string, string> IDToNamesOfServers { get; set; } = new Dictionary<string, string>()
         {
-
+            ["example"] = "0"
         };
 
         public bool DisplayRawIDs { get; set; } = true;
 
-        public string AuthToken { get; set; } = "none";
+        public string AuthToken { get; set; } = "put_an_auth_key_here";
 
         public ulong ChannelID { get; set; } = 0;
 

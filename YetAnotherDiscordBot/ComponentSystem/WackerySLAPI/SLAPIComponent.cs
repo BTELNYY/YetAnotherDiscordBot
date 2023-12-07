@@ -99,7 +99,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
             List<Embed> embeds = new List<Embed>();
             foreach (ServerResponse s in response.value)
             {
-                Log.Debug("Creating embeds");
+                //Log.Debug("Creating embeds");
                 foreach (Server s1 in s.Servers)
                 {
                     string name = "";
@@ -127,7 +127,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
                             .WithCurrentTimestamp()
                             .WithColor(Color.Green)
                             .AddField("Players online", playerNames.Count);
-                        Log.Debug("Embed created");
+                        //Log.Debug("Embed created");
                     }
                     else
                     {
@@ -144,40 +144,40 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
                 Log.Fatal("Channel not found! " + Configuration.ChannelID);
                 return;
             }
-            Log.Debug("Channel obtained");
+            //Log.Debug("Channel obtained");
             var meses = await channel.GetMessagesAsync().FlattenAsync();
-            Log.Debug("Messages obtained");
+            //Log.Debug("Messages obtained");
             if (meses == null)
             {
                 Log.Warning("No messages in channel");
                 await channel.SendMessageAsync(embeds: embeds.ToArray());
                 return;
             }
-            Log.Debug("Searching for messages from bot");
+            //Log.Debug("Searching for messages from bot");
             var botMes = meses.Where((message => message.Author.Id == OwnerShard.Client.CurrentUser.Id));
-            Log.Debug("Getting first bot message");
+            //Log.Debug("Getting first bot message");
             if (!botMes.Any())
             {
-                Log.Warning("No bot messages!");
+                //Log.Warning("No bot messages!");
                 await channel.SendMessageAsync(embeds: embeds.ToArray());
                 return;
             }
             var messagetoEdit = botMes.First();
-            Log.Debug("Checking dat shit");
+            //Log.Debug("Checking dat shit");
             if (messagetoEdit == null)
             {
                 // create new message
-                Log.Debug("Create new message");
+                //Log.Debug("Create new message");
                 await channel.SendMessageAsync(embeds: embeds.ToArray());
             }
             else
             {
                 // edit message
-                Log.Debug("Edit message");
+                //Log.Debug("Edit message");
                 var mestoEdituser = messagetoEdit as IUserMessage;
                 if (mestoEdituser == null)
                 {
-                    Log.Fatal("not a IUserMessage");
+                    //Log.Fatal("not a IUserMessage");
                     return;
                 }
                 await mestoEdituser.ModifyAsync(properties => { properties.Embeds = embeds.ToArray(); });
@@ -217,7 +217,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
                 string url = CurrentURL;
                 string html = string.Empty;
                 string requrl = "test/";
-                Log.Debug("Trying to auth with Token: " + token);
+                //Log.Debug("Trying to auth with Token: " + token);
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
                 var response = client.GetStringAsync(url + requrl);

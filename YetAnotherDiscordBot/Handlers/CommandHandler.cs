@@ -24,6 +24,7 @@ namespace YetAnotherDiscordBot.Handlers
             Log.GlobalInfo("Registering Global Commands...");
             BuildCommand(new Ping());
             BuildCommand(new GetAllComponents());
+            BuildCommand(new DestroyAppCommands());
             stopwatch.Stop();
             Log.GlobalInfo("Done! Took {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
         }

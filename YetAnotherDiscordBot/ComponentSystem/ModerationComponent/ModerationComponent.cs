@@ -6,6 +6,8 @@ using YetAnotherDiscordBot.Commands;
 using YetAnotherDiscordBot.Commands.Moderation;
 using YetAnotherDiscordBot.Service;
 using YetAnotherDiscordBot.Attributes;
+using System.Runtime.CompilerServices;
+using System.ComponentModel.Design;
 
 namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 {
@@ -242,29 +244,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
                 Log.Error("Tried to lockdown a channel across another guild.");
                 return;
             }
-            if (useWarning && !_channelLocks.ContainsKey(textchannel.Id))
-            {
-                string message = Configuration.TranslationsData.LockdownWarning.Replace("{channelId}", textchannel.Id.ToString()).Replace("{length}", Configuration.LockdownDelay.ToString()).Replace("{url}", Configuration.LockdownWarningVideoURL);
-                textchannel.SendMessageAsync(message);
-                Task.Run(() => DelayedLockdown(textchannel));
-            }
-            if (!useWarning && !_channelLocks.ContainsKey(textchannel.Id))
-            {
-                var perms = new OverwritePermissions();
-                perms = perms.Modify(sendMessages: PermValue.Deny, sendMessagesInThreads: PermValue.Deny, createPrivateThreads: PermValue.Deny, createPublicThreads: PermValue.Deny, addReactions: PermValue.Deny);
-                var role = OwnerShard.TargetGuild.EveryoneRole;
-                _channelLocks.Add(textchannel.Id, textchannel.PermissionOverwrites.ToList());
-                foreach (var thing in textchannel.PermissionOverwrites)
-                {
-                    if (thing.TargetType == PermissionTarget.Role)
-                    {
-                        var r = OwnerShard.TargetGuild.GetRole(thing.TargetId);
-                        textchannel.RemovePermissionOverwriteAsync(r);
-                    }
-                }
-                textchannel.AddPermissionOverwriteAsync(role, perms);
-                textchannel.SendMessageAsync(Configuration.TranslationsData.LockdownStarted);
-            }
             if (_channelLocks.ContainsKey(textchannel.Id))
             {
                 textchannel.SendMessageAsync(Configuration.TranslationsData.LockdownEnded);
@@ -278,6 +257,32 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
                 }
                 _channelLocks.Remove(textchannel.Id);
                 textchannel.SendMessageAsync(Configuration.TranslationsData.LockdownEnded);
+            }
+            else
+            {
+                if (useWarning)
+                {
+                    string message = Configuration.TranslationsData.LockdownWarning.Replace("{channelId}", textchannel.Id.ToString()).Replace("{length}", Configuration.LockdownDelay.ToString()).Replace("{url}", Configuration.LockdownWarningVideoURL);
+                    textchannel.SendMessageAsync(message);
+                    Task.Run(() => DelayedLockdown(textchannel));
+                }
+                else
+                {
+                    var perms = new OverwritePermissions();
+                    perms = perms.Modify(sendMessages: PermValue.Deny, sendMessagesInThreads: PermValue.Deny, createPrivateThreads: PermValue.Deny, createPublicThreads: PermValue.Deny, addReactions: PermValue.Deny);
+                    var role = OwnerShard.TargetGuild.EveryoneRole;
+                    _channelLocks.Add(textchannel.Id, textchannel.PermissionOverwrites.ToList());
+                    foreach (var thing in textchannel.PermissionOverwrites)
+                    {
+                        if (thing.TargetType == PermissionTarget.Role)
+                        {
+                            var r = OwnerShard.TargetGuild.GetRole(thing.TargetId);
+                            textchannel.RemovePermissionOverwriteAsync(r);
+                        }
+                    }
+                    textchannel.AddPermissionOverwriteAsync(role, perms);
+                    textchannel.SendMessageAsync(Configuration.TranslationsData.LockdownStarted);
+                }
             }
             EmbedBuilder eb = new();
             eb.WithTitle("Channel Lockdown");

@@ -14,7 +14,7 @@ namespace YetAnotherDiscordBot.Service
 
         //Global Config
         public const string GlobalConfigFolder = ConfigFolder + "global/";
-        public const string GlobalConfigFile = GlobalConfigFolder + "config.json";
+        public const string GlobalConfigFile = ConfigFolder + "config.json";
 
         //Server Config
         public const string ServerConfigFolder = ConfigFolder + "servers/";
@@ -83,6 +83,7 @@ namespace YetAnotherDiscordBot.Service
                 return GetFileGlobalConfiguration();
             }
             string json = JsonConvert.SerializeObject(new GlobalConfiguration(), Formatting.Indented);
+            Log.GlobalDebug(json);
             File.WriteAllText(GlobalConfigFile, json);
             return new GlobalConfiguration();
         }

@@ -246,7 +246,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             }
             if (_channelLocks.ContainsKey(textchannel.Id))
             {
-                textchannel.SendMessageAsync(Configuration.TranslationsData.LockdownEnded);
                 foreach (var thing in _channelLocks[textchannel.Id])
                 {
                     if (thing.TargetType == PermissionTarget.Role)

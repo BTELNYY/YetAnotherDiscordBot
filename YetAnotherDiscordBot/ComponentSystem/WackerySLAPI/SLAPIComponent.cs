@@ -114,7 +114,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
                         {
                             name = s1.ID.ToString();
                         }
-                        continue;
                     }
                     var embed = new EmbedBuilder
                     {
@@ -140,7 +139,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
             Log.Debug("Messages obtained");
             if (meses == null)
             {
-                Log.Warning("No messages, cringe");
+                Log.Warning("No messages in channel");
                 await channel.SendMessageAsync(embeds: embeds.ToArray());
                 return;
             }
@@ -149,7 +148,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
             Log.Debug("Getting first bot message");
             if (!botMes.Any())
             {
-                Log.Warning("No messages, cringe");
+                Log.Warning("No bot messages!");
                 await channel.SendMessageAsync(embeds: embeds.ToArray());
                 return;
             }

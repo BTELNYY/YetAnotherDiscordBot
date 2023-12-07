@@ -105,6 +105,7 @@ namespace YetAnotherDiscordBot.Commands.SLStuff
                 await command.RespondAsync("An error occured! \n ```" + ex.ToString() + "```");
             }
         }
+
         public override void BuildOptions()
         {
             CommandOptionsBase cob = new()

@@ -45,6 +45,7 @@ namespace YetAnotherDiscordBot
 
         public async Task MainAsync(string[] args)
         {
+            Directory.CreateDirectory(InternalConfig.LogPath);
             Log.GlobalInfo("Starting up!");
             stopwatch = Stopwatch.StartNew();
             DiscordSocketConfig config = new()

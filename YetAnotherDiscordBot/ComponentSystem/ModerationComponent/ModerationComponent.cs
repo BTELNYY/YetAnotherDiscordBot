@@ -116,6 +116,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
         {
             if(_targetChannel is null || user is null || author is null || reason is null)
             {
+                Log.Warning("Null in punish user.");
                 return false;
             }
             string punishmentText = GetTranslation(punishment);
@@ -173,7 +174,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
                     }
                     else
                     {
-                        user.SetTimeOutAsync((TimeSpan)duration);
+                        user.SetTimeOutAsync((TimeSpan)duration, new RequestOptions() { AuditLogReason = reason });
                         if(textChannel != null && showMessage)
                         {
                             textChannel.SendMessageAsync(embed: eb.Build());

@@ -9,7 +9,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 {
     public class ModeratonComponentConfiguration : ComponentServerConfiguration
     {
-        public override string Filename => "ModeratonConfig.json";
+        public override string Filename => "ModerationConfig.json";
 
         public ulong ChannelID = 0;
 

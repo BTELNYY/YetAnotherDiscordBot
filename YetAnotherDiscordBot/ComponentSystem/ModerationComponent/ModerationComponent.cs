@@ -114,10 +114,9 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 
         public bool PunishUser(SocketGuildUser user, SocketGuildUser author, Punishment punishment, string reason, TimeSpan? duration = null, SocketGuildChannel? channel = null, bool showMessage = true, bool sendDm = true)
         {
-            if(_targetChannel is null || user is null || author is null || reason is null)
+            if(user is null || author is null || reason is null)
             {
                 Log.Warning("Null in punish user.");
-                Log.Debug($"{_targetChannel} {user} {author} {reason}");
                 return false;
             }
             string punishmentText = GetTranslation(punishment);

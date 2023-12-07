@@ -54,7 +54,7 @@ namespace YetAnotherDiscordBot
                 MessageCacheSize = 50,              
             };
             string token = "";
-            token = File.ReadAllText("./token.txt");
+            token = ConfigurationService.GlobalConfiguration.Token;
             Client = new(config);
             await Client.LoginAsync(TokenType.Bot, token);
             await Client.StartAsync();

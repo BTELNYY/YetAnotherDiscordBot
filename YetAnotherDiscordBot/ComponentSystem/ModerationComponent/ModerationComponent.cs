@@ -239,6 +239,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
         public void LockdownChannel(SocketTextChannel textchannel, SocketGuildUser author, bool useWarning = false)
         {
             //This should almost never happen.
+            //seethe
             if(textchannel.Guild.Id != OwnerShard.GuildID)
             {
                 Log.Error("Tried to lockdown a channel across another guild.");

@@ -12,12 +12,15 @@ using YetAnotherDiscordBot.Service;
 using Discord;
 using Discord.Net;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace YetAnotherDiscordBot
 {
     public class BotShard
     {
         public Dictionary<string, Command> PerBotCommands = new Dictionary<string, Command>();
+
+        private List<string> _alreadyPresentCommands = new List<string>();
 
         public ulong GuildID { get; private set; } = 0;
 
@@ -109,6 +112,7 @@ namespace YetAnotherDiscordBot
                 Log.Error("GuildID is already handled! GuildID: " + guildId.ToString());
                 return;
             }
+            _alreadyPresentCommands = TargetGuild.GetApplicationCommandsAsync().Result.Where(x => x.ApplicationId == Client.GetApplicationInfoAsync().Result.Id).Select(x => x.Name).ToList();
             _serverConfig = ConfigurationService.GetServerConfiguration(GuildID);
             _componentManager = new ComponentManager(this);
             _componentManager.Start();
@@ -147,6 +151,11 @@ namespace YetAnotherDiscordBot
 
         public async Task<bool> BuildShardCommand(Command command)
         {
+            if (_alreadyPresentCommands.Contains(command.CommandName))
+            {
+                Log.Info("Skipping command " + command.CommandName + " because its already added to guild.");
+                return true;
+            }
             SlashCommandBuilder scb = new();
             scb.WithName(command.CommandName);
             scb.WithDescription(command.Description);

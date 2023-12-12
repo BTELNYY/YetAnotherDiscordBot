@@ -25,6 +25,7 @@ namespace YetAnotherDiscordBot.Handlers
             BuildCommand(new Ping());
             BuildCommand(new GetAllComponents());
             BuildCommand(new DestroyAppCommands());
+            BuildCommand(new UserPFP());
             stopwatch.Stop();
             Log.GlobalInfo("Done! Took {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
         }

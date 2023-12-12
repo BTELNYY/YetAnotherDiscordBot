@@ -47,6 +47,7 @@ namespace YetAnotherDiscordBot.Commands
                     eb.ImageUrl = guildurl;
                 }
             }
+            eb.ImageUrl = eb.ImageUrl.Replace("?size=256", string.Empty);
             eb.WithCurrentTimestamp();
             Embed embed = eb.Build();
             command.RespondAsync(embed: embed);

@@ -31,9 +31,9 @@ namespace YetAnotherDiscordBot.Commands
             EmbedBuilder eb = new();
             eb.Title = user.Username + " (" + id + ")";
             eb.AddField("Has Guild Profile Picture?", HasGuildPfp.ToString());
-            eb.ImageUrl = user.GetAvatarUrl(size: 128);
-            url = user.GetAvatarUrl();
-            string guildurl = user.GetGuildAvatarUrl(size: 128);
+            eb.ImageUrl = user.GetAvatarUrl(size: 256);
+            url = user.GetAvatarUrl(size: 256);
+            string guildurl = user.GetGuildAvatarUrl(size: 256);
             eb.AddField("Global Profile Picture URL", url);
             if (HasGuildPfp && guildurl != null)
             {

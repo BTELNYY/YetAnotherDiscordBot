@@ -151,11 +151,6 @@ namespace YetAnotherDiscordBot
 
         public async Task<bool> BuildShardCommand(Command command)
         {
-            if (_alreadyPresentCommands.Contains(command.CommandName))
-            {
-                Log.Info("Skipping command " + command.CommandName + " because its already added to guild.");
-                return true;
-            }
             SlashCommandBuilder scb = new();
             scb.WithName(command.CommandName);
             scb.WithDescription(command.Description);
@@ -176,6 +171,11 @@ namespace YetAnotherDiscordBot
             }
             try
             {
+                if (_alreadyPresentCommands.Contains(command.CommandName))
+                {
+                    Log.Info("Skipping command " + command.CommandName + " because its already added to guild.");
+                    return true;
+                }
                 Log.Info("Building Command: " + command.CommandName);
                 SocketApplicationCommand result = await TargetGuild.CreateApplicationCommandAsync(scb.Build());
                 Log.Debug($"{result.Id}, {result.Name}, {result.Type}");

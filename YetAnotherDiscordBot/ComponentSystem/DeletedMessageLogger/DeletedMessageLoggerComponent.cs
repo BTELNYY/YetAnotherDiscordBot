@@ -60,6 +60,15 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
             {
                 return Task.CompletedTask;
             }
+            SocketGuildChannel? socketGuildChannel = channel.Value as SocketGuildChannel;
+            if(socketGuildChannel == null)
+            {
+                return Task.CompletedTask;
+            }
+            if(socketGuildChannel.Guild.Id != OwnerShard.GuildID)
+            {
+                return Task.CompletedTask;
+            }
             if(_textChannel == null)
             {
                 Log.Error($"[{nameof(DeletedMessageLoggerComponent)}] Text channel is null.");

@@ -104,6 +104,21 @@ namespace YetAnotherDiscordBot
             }
         }
 
+        public DiscordUserDataService? _discordAudioService;
+
+        public DiscordUserDataService DiscordUserDataService
+        {
+            get
+            {
+                if (_discordAudioService == null)
+                {
+                    Log.Error("DiscordUserService is NULL!");
+                    _discordAudioService = new(this);
+                }
+                return _discordAudioService;
+            }
+        }
+
         public BotShard(ulong guildId)
         {
             GuildID = guildId;
@@ -115,6 +130,7 @@ namespace YetAnotherDiscordBot
             _alreadyPresentCommands = TargetGuild.GetApplicationCommandsAsync().Result.Where(x => x.ApplicationId == Client.GetApplicationInfoAsync().Result.Id).Select(x => x.Name).ToList();
             _serverConfig = ConfigurationService.GetServerConfiguration(GuildID);
             _componentManager = new ComponentManager(this);
+            _discordAudioService = new DiscordUserDataService(this);
             _componentManager.Start();
             Program.GuildToThread.Add(guildId, this);
         }

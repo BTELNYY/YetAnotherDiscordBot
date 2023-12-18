@@ -68,8 +68,8 @@ namespace YetAnotherDiscordBot
             Log.GlobalInfo("Connecting to discord...");
             await Client.LoginAsync(TokenType.Bot, token);
             await Client.StartAsync();
-            await Client.SetStatusAsync(UserStatus.DoNotDisturb);
-            await Client.SetCustomStatusAsync("In Dev!");
+            await Client.SetStatusAsync(ConfigurationService.GlobalConfiguration.BotStatus);
+            await Client.SetCustomStatusAsync(ConfigurationService.GlobalConfiguration.BotStatusMessage);
             Log.GlobalInfo("Starting Services...");
             ConfigurationService.Start();
             ShutdownService.Start();

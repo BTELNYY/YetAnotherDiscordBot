@@ -65,6 +65,13 @@ namespace YetAnotherDiscordBot.Commands
             foreach(IMessage message in messages)
             {
                 string msg = $"[{message.Author.Username} ({message.Author.Id}), {message.CreatedAt}]: {message.Content} \n";
+                if (message.Embeds.Count != 0)
+                {
+                    foreach(Attachment attachment in message.Attachments)
+                    {
+                        msg += attachment.Url + " ";
+                    }
+                }
                 data += msg;
             }
             Directory.CreateDirectory(ConfigurationService.ConfigFolder + "cache/");

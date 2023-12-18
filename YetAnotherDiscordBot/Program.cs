@@ -77,9 +77,17 @@ namespace YetAnotherDiscordBot
             Log.GlobalInfo("Register Events...");
             Client.Ready += OnReady;
             Client.Log += LogEvent;
+            Client.GuildAvailable += GuildJoined;
             Client.ApplicationCommandCreated += ApplicationCommandCreated;
             Client.SlashCommandExecuted += CommandHandler.SlashCommandExecuted;
             await Task.Delay(-1);
+        }
+
+        private Task GuildJoined(SocketGuild arg)
+        {
+            Log.GlobalInfo("Added to new Guild at runtime. Starting new shard!");
+            StartShard(arg.Id);
+            return Task.CompletedTask;
         }
 
         private Task ApplicationCommandCreated(SocketApplicationCommand arg)

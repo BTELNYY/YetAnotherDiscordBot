@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Reactive.Concurrency;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using YetAnotherDiscordBot.Configuration;
 using YetAnotherDiscordBot.Handlers;
 using YetAnotherDiscordBot.Service;
 
@@ -18,6 +19,14 @@ namespace YetAnotherDiscordBot
         public static Dictionary<ulong, BotShard> GuildToThread = new Dictionary<ulong, BotShard>();
 
         public static Dictionary<BotShard, Thread> BotToThread = new Dictionary<BotShard, Thread>();
+
+        public static GlobalConfiguration GlobalConfiguration
+        {
+            get
+            {
+                return ConfigurationService.GlobalConfiguration;
+            }
+        }
 
         public static BotShard GetShard(ulong id)
         {
@@ -56,13 +65,16 @@ namespace YetAnotherDiscordBot
             string token = "";
             token = ConfigurationService.GlobalConfiguration.Token;
             Client = new(config);
+            Log.GlobalInfo("Connecting to discord...");
             await Client.LoginAsync(TokenType.Bot, token);
             await Client.StartAsync();
             await Client.SetStatusAsync(UserStatus.DoNotDisturb);
             await Client.SetCustomStatusAsync("In Dev!");
+            Log.GlobalInfo("Starting Services...");
             ConfigurationService.Start();
             ShutdownService.Start();
             ShutdownService.OnShutdownSignal += OnShutdown;
+            Log.GlobalInfo("Register Events...");
             Client.Ready += OnReady;
             Client.Log += LogEvent;
             Client.ApplicationCommandCreated += ApplicationCommandCreated;

@@ -8,6 +8,11 @@ namespace YetAnotherDiscordBot.Configuration
 {
     public class GlobalConfiguration : Configuration
     {
-        public string Token { get; set; } = "";
+        public string Token = "";
+
+        public List<ulong> DeveloperIDs = new List<ulong>()
+        {
+
+        };
     }
 }

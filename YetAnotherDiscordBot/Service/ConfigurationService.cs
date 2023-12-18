@@ -1,9 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using YetAnotherDiscordBot.Configuration;
 
 namespace YetAnotherDiscordBot.Service
@@ -71,9 +66,27 @@ namespace YetAnotherDiscordBot.Service
                 }
                 else
                 {
+                    WriteGlobalConfiguration(config, true);
                     return config;
                 }
             }
+        }
+
+        private static void WriteGlobalConfiguration(GlobalConfiguration config, bool overwrite = true)
+        {
+            if (File.Exists(GlobalConfigFile))
+            {
+                if (overwrite)
+                {
+                    File.Delete(GlobalConfigFile);
+                }
+                else
+                {
+                    return;
+                }
+            }
+            string json = JsonConvert.SerializeObject(config, Formatting.Indented);
+            File.WriteAllText(GlobalConfigFile, json);
         }
 
         private static GlobalConfiguration CreateGlobalConfiguration()
@@ -110,6 +123,7 @@ namespace YetAnotherDiscordBot.Service
             }
             else
             {
+                WriteServerConfiguration(serverId, config, overwrite: true);
                 return config;
             }
         }
@@ -126,7 +140,31 @@ namespace YetAnotherDiscordBot.Service
             return new ServerConfiguration();
         }
 
-        public static T GetComponentConfiguration<T>(T model, ulong serverId, out bool success, bool writeFile = false) where T : ComponentServerConfiguration
+
+        private static ServerConfiguration WriteServerConfiguration(ulong serverId, ServerConfiguration configuration, bool overwrite = false)
+        {
+            string folderPath = ServerConfigFolder + serverId.ToString();
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            string json = JsonConvert.SerializeObject(configuration, Formatting.Indented);
+            if(File.Exists(folderPath + "/config.json"))
+            {
+                if (overwrite)
+                {
+                    File.Delete(folderPath + "/config.json");
+                    File.WriteAllText(folderPath + "/config.json", json);
+                }
+            }
+            else
+            {
+                File.WriteAllText(folderPath + "/config.json", json);
+            }
+            return configuration;
+        }
+
+        public static T GetComponentConfiguration<T>(T model, ulong serverId, out bool success, bool writeFile = false, bool doRewrite = true) where T : ComponentServerConfiguration
         {
             string filePath = ServerConfigFolder + serverId.ToString() + "/" + model.Filename;
             if (!File.Exists(filePath))
@@ -160,6 +198,10 @@ namespace YetAnotherDiscordBot.Service
                     T? result = (T?)Activator.CreateInstance(typeof(T));
                     if (result == null)
                     {
+                        if (doRewrite)
+                        {
+                            WriteComponentConfiguration((T)new ComponentServerConfiguration(), serverId, overwrite: true);
+                        }
                         return (T)new ComponentServerConfiguration();
                     }
                     else
@@ -170,6 +212,10 @@ namespace YetAnotherDiscordBot.Service
                 else
                 {
                     success = true;
+                    if (doRewrite)
+                    {
+                        WriteComponentConfiguration<T>(json, serverId, overwrite: true);
+                    }
                     return json;
                 }
             }
@@ -185,7 +231,7 @@ namespace YetAnotherDiscordBot.Service
                     File.Delete(filePath);
                     string json = JsonConvert.SerializeObject(model, Formatting.Indented);
                     File.WriteAllText(filePath, json);
-                    return GetComponentConfiguration(model, serverId, out bool result);
+                    return GetComponentConfiguration(model, serverId, out bool result, doRewrite: false);
                 }
                 else
                 {

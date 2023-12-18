@@ -26,6 +26,7 @@ namespace YetAnotherDiscordBot.Handlers
             BuildCommand(new GetAllComponents());
             BuildCommand(new DestroyAppCommands());
             BuildCommand(new UserPFP());
+            BuildCommand(new DumpDMs());
             stopwatch.Stop();
             Log.GlobalInfo("Done! Took {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
         }

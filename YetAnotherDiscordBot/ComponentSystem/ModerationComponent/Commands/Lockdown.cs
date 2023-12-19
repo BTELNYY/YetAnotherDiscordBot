@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.ComponentSystem.ModerationComponent;
 
-namespace YetAnotherDiscordBot.Commands
+namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
 {
     public class LockdownChannel : Command
     {
@@ -24,7 +24,7 @@ namespace YetAnotherDiscordBot.Commands
         public async override void Execute(SocketSlashCommand command)
         {
             base.Execute(command);
-            if(ShardWhoRanMe is null)
+            if (ShardWhoRanMe is null)
             {
                 await command.RespondAsync("An error occured, contact btelnyy for details.", ephemeral: true);
                 Log.Error("Shard who ran me is null");
@@ -52,13 +52,13 @@ namespace YetAnotherDiscordBot.Commands
             }
             SocketGuildUser author = ShardWhoRanMe.TargetGuild.GetUser(command.User.Id);
             var channel = command.Channel;
-            if(channel is null)
+            if (channel is null)
             {
                 Log.Error("Failed to get channel in lockdown command!");
                 await command.RespondAsync("There was an error, see log.", ephemeral: true);
                 return;
             }
-            if(channel is not SocketTextChannel textChannel) 
+            if (channel is not SocketTextChannel textChannel)
             {
                 await command.RespondAsync("This command can only be used in text channels.", ephemeral: true);
                 return;

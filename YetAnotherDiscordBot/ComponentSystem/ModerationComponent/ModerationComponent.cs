@@ -2,12 +2,11 @@
 using Discord.Rest;
 using Discord.WebSocket;
 using System.Transactions;
-using YetAnotherDiscordBot.Commands;
-using YetAnotherDiscordBot.Commands.Moderation;
 using YetAnotherDiscordBot.Service;
 using YetAnotherDiscordBot.Attributes;
 using System.Runtime.CompilerServices;
 using System.ComponentModel.Design;
+using YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands;
 
 namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 {

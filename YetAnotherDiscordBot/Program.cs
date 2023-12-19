@@ -77,16 +77,26 @@ namespace YetAnotherDiscordBot
             Log.GlobalInfo("Register Events...");
             Client.Ready += OnReady;
             Client.Log += LogEvent;
-            Client.GuildAvailable += GuildJoined;
             Client.ApplicationCommandCreated += ApplicationCommandCreated;
+            Client.GuildUnavailable += GuildRemoved;
             Client.SlashCommandExecuted += CommandHandler.SlashCommandExecuted;
             await Task.Delay(-1);
         }
 
-        private Task GuildJoined(SocketGuild arg)
+        private Task GuildRemoved(SocketGuild guild)
+        {
+            if (HasShard(guild.Id))
+            {
+                Log.GlobalWarning("Runtime removed from guild. Stopping shard. ID: " + guild.Id);
+                GetShard(guild.Id).OnShutdown();
+            }
+            return Task.CompletedTask;
+        }
+
+        private Task GuildJoined(SocketGuild guild)
         {
             Log.GlobalInfo("Added to new Guild at runtime. Starting new shard!");
-            StartShard(arg.Id);
+            StartShard(guild.Id);
             return Task.CompletedTask;
         }
 
@@ -148,6 +158,7 @@ namespace YetAnotherDiscordBot
                 StartShard(guild.Id);
             }
             Log.GlobalInfo("Full startup time was {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
+            Client.GuildAvailable += GuildJoined;
             return Task.CompletedTask;
         }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,6 +64,23 @@ namespace YetAnotherDiscordBot.Service
             return false;
         }
 
+        public bool DeleteData<T>(ulong id) where T : DiscordUserData
+        {
+            object[] args = { id, this };
+            T? clazz = (T?)Activator.CreateInstance(typeof(T), args);
+            if (clazz == null)
+            {
+                throw new NullReferenceException("Activator Created null object.");
+            }
+            string fileName = GetUserFolder(id) + clazz.Filename;
+            if (!File.Exists(fileName))
+            {
+                return false;
+            }
+            File.Delete(fileName);
+            return true;
+        }
+
         public bool DeleteData<T>(T model, ulong id) where T : DiscordUserData
         {
             string fileName = GetUserFolder(id) + model.Filename;
@@ -74,34 +92,34 @@ namespace YetAnotherDiscordBot.Service
             return true;
         }
 
-        public T GetData<T>(T model, ulong id) where T : DiscordUserData
+        public T GetData<T>(ulong id) where T : DiscordUserData
         {
-            string fileName = GetUserFolder(id) + model.Filename;
+            object[] args = { id, this };
+            T? value = (T?)Activator.CreateInstance(typeof(T), args);
+            if (value == null)
+            {
+                throw new NullReferenceException("Activator Created null object.");
+            }
+            string fileName = GetUserFolder(id) + value.Filename;
             if (!File.Exists(fileName))
             {
-                return CreateData(model, id);
+                return WriteData(value, id, true);
             }
             string data = File.ReadAllText(fileName);
-            DiscordUserData? desil = JsonConvert.DeserializeObject<DiscordUserData>(data);
+            T? desil = JsonConvert.DeserializeObject<T>(data);
             if(desil == null)
             {
-                T? newData = (T?)Activator.CreateInstance(typeof(T));
-                if(newData == null)
-                {
-                    return (T)new DiscordUserData();
-                }
-                else
-                {
-                    return newData;
-                }
+                return value;
             }
             else
             {
-                return (T)desil;
+                desil.DiscordUserDataService = this;
+                desil.OwnerID = id;
+                return desil;
             }
         }
 
-        public T WriteData<T>(T model, ulong id, bool overwrite = false) where T : DiscordUserData
+        public T WriteData<T>(T model, ulong id, bool overwrite = true) where T : DiscordUserData
         {
             string fileName = GetUserFolder(id) + model.Filename;
             Directory.CreateDirectory(GetUserFolder(id));
@@ -114,37 +132,11 @@ namespace YetAnotherDiscordBot.Service
                 }
                 else
                 {
-                    return GetData(model, id);
+                    return GetData<T>(id);
                 }
             }
             File.WriteAllText(fileName, json);
             return model;
-        }
-
-        private T CreateData<T>(T model, ulong id, bool overwrite = false) where T : DiscordUserData
-        {
-            string fileName = GetUserFolder(id) + model.Filename;
-            Directory.CreateDirectory(GetUserFolder(id));
-            if (File.Exists(fileName))
-            {
-                if (overwrite)
-                {
-                    File.Delete(fileName);
-                    string json = JsonConvert.SerializeObject(model, Formatting.Indented);
-                    File.WriteAllText(fileName, json);
-                    return (T)new DiscordUserData();
-                }
-                else
-                {
-                    return GetData(model, id);
-                }
-            }
-            else
-            {
-                string json = JsonConvert.SerializeObject(model, Formatting.Indented);
-                File.WriteAllText(fileName, json);
-                return (T)new DiscordUserData();
-            }
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YetAnotherDiscordBot.Commands.SLStuff;
+using YetAnotherDiscordBot.ComponentSystem.WackerySLAPI.Commands;
 using YetAnotherDiscordBot.Service;
 using YetAnotherDiscordBot.Attributes;
 

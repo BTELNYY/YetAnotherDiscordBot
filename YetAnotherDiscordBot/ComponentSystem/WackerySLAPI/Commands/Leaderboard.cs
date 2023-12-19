@@ -6,9 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YetAnotherDiscordBot.CommandBase;
-using YetAnotherDiscordBot.ComponentSystem.WackerySLAPI;
 
-namespace YetAnotherDiscordBot.Commands.SLStuff
+namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI.Commands
 {
     public class Leaderboard : Command
     {

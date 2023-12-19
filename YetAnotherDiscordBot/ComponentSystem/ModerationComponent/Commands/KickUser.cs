@@ -6,24 +6,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YetAnotherDiscordBot.CommandBase;
+using YetAnotherDiscordBot.ComponentSystem;
 using YetAnotherDiscordBot.ComponentSystem.ModerationComponent;
 
-namespace YetAnotherDiscordBot.Commands
+namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
 {
-    public class TimeoutUser : Command 
+    public class KickUser : Command
     {
-        public override string CommandName => "timeoutuser";
-        public override string Description => "time a user out for a set amount of seconds.";
-        public override GuildPermission RequiredPermission => GuildPermission.MuteMembers;
+        public override string CommandName => "kickuser";
+        public override string Description => "kick a user from this server.";
+        public override GuildPermission RequiredPermission => GuildPermission.KickMembers;
         public override List<Type> RequiredComponents => new List<Type>()
         {
             typeof(ModerationComponent),
         };
-        public async override void Execute(SocketSlashCommand command)
+        public override async void Execute(SocketSlashCommand command)
         {
             base.Execute(command);
-            SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
-            SocketGuildUser target = (SocketGuildUser) options[0].Value;
             if (ShardWhoRanMe is null)
             {
                 return;
@@ -31,20 +30,16 @@ namespace YetAnotherDiscordBot.Commands
             ModerationComponent moderationComponent = ShardWhoRanMe.ComponentManager.GetComponent<ModerationComponent>(out bool success);
             if (!success)
             {
+                await command.RespondAsync("An error occured. Contact btelnyy for more details.", ephemeral: true);
                 Log.Warning("Failed to fetch Moderation Component!");
-                await command.RespondAsync("An error occured. Contact btelnyy for details.", ephemeral: true);
                 return;
             }
-            long length = (long) options[1].Value;
-            string reason = (string)options[2].Value;
+            SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
+            SocketGuildUser user = (SocketGuildUser)options[0].Value;
+            string reason = (string)options[1].Value;
             SocketGuildUser author = ShardWhoRanMe.TargetGuild.GetUser(command.User.Id);
-            if (length < 30)
-            {
-                //too short of length
-                await command.RespondAsync("Duration too short.", ephemeral: true);
-                return;
-            }
-            bool result = moderationComponent.PunishUser(target, author, ModerationComponent.Punishment.Timeout, reason, TimeSpan.FromSeconds(length));
+            bool senddm = (bool)options[2].Value;
+            bool result = moderationComponent.PunishUser(user, author, ModerationComponent.Punishment.Kick, reason, sendDm: senddm);
             if (!result)
             {
                 await command.RespondAsync("An error occured. Contact btelnyy for more information.", ephemeral: true);
@@ -57,31 +52,32 @@ namespace YetAnotherDiscordBot.Commands
 
         public override void BuildOptions()
         {
-            CommandOptionsBase cob = new()
+            base.BuildOptions();
+            CommandOptionsBase cob = new CommandOptionsBase()
             {
                 Name = "user",
-                Description = "user to mute",
+                Description = "User which to kick",
                 OptionType = ApplicationCommandOptionType.User,
-                Required = true
+                Required = true,
             };
-            CommandOptionsBase cob2 = new()
-            {
-                Name = "length",
-                Description = "amount of seconds to mute them for",
-                OptionType = ApplicationCommandOptionType.Integer,
-                Required = true
-            };
-            CommandOptionsBase cob3 = new()
+            CommandOptionsBase cob1 = new CommandOptionsBase()
             {
                 Name = "reason",
-                Description = "string reason",
+                Description = "Reason for being kicked",
                 OptionType = ApplicationCommandOptionType.String,
+                Required = true
+            };
+            CommandOptionsBase cob2 = new CommandOptionsBase()
+            {
+                Name = "senddm",
+                Description = "Should the bot message the kicked user?",
+                OptionType = ApplicationCommandOptionType.Boolean,
                 Required = true
             };
             Options.Clear();
             Options.Add(cob);
+            Options.Add(cob1);
             Options.Add(cob2);
-            Options.Add(cob3);
         }
     }
 }

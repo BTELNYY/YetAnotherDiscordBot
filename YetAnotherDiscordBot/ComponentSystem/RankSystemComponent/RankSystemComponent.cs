@@ -109,7 +109,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
             rolled *= Configuration.CurrentXPMultiplier;
             rolled *= discordUserRankData.PersonalXPMultiplier;
             float requiredXP = Configuration.RankAlgorithmConfiguratiom.FindXP(discordUserRankData.Level);
-            Log.Debug(rolled.ToString());
             if((rolled + discordUserRankData.XP) < requiredXP)
             {
                 discordUserRankData.XP += rolled;
@@ -125,7 +124,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
                     discordUserRankData.XP -= xp;
                     discordUserRankData.Level++;
                 }
-                Log.Debug($"{discordUserRankData.XP}, {discordUserRankData.Level}");
                 OwnerShard.DiscordUserDataService.WriteData(discordUserRankData, msg.Author.Id);
             }
             return Task.CompletedTask;

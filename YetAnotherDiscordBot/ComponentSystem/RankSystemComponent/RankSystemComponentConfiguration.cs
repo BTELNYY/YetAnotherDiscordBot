@@ -50,7 +50,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
             }
             else
             {
-                Log.GlobalDebug("Didn't roll for xp. Chance rolled: " + chanceRolled + " Required: " + (PercentChancePerMessage / 100f));
                 return 0.0f;
             }
         }

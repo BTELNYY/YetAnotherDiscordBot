@@ -14,7 +14,7 @@ namespace YetAnotherDiscordBot.CommandBase
         public virtual string CommandName { get; } = "commandname";
         public virtual string Description { get; } = "Command Description";
         public virtual bool IsDMEnabled { get; } = false;
-        public virtual GuildPermission RequiredPermission { get; }
+        public virtual GuildPermission RequiredPermission { get; } = GuildPermission.UseApplicationCommands;
         public virtual List<CommandOptionsBase> Options { get; } = new List<CommandOptionsBase>();
         public virtual bool IsDefaultEnabled { get; } = true;
         public virtual List<string> Aliases { get; } = new();

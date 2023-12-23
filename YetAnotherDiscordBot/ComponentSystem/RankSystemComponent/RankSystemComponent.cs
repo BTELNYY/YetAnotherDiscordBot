@@ -23,6 +23,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
         public override List<Type> ImportedCommands => new List<Type>()
         {
             typeof(Rank),
+            typeof(Setrank),
         };
 
         public RankSystemComponentConfiguration Configuration

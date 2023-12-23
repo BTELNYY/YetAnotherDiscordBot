@@ -26,12 +26,12 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI.Commands
             base.Execute(command);
             SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
             Embed[] embeds;
-            if (ShardWhoRanMe == null)
+            if (OwnerShard == null)
             {
                 await command.RespondAsync(embed: new EmbedBuilder().GetErrorEmbed("Error", "Cannot run this in DMs."));
                 return;
             }
-            SLAPIComponent slAPIComponent = ShardWhoRanMe.ComponentManager.GetComponent<SLAPIComponent>(out bool succes);
+            SLAPIComponent slAPIComponent = OwnerShard.ComponentManager.GetComponent<SLAPIComponent>(out bool succes);
             if (!succes)
             {
                 await command.RespondAsync(embed: new EmbedBuilder().GetErrorEmbed("Error", "Cannot get required component."));

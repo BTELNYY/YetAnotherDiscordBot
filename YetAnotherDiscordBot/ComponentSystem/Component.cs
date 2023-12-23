@@ -6,6 +6,8 @@
 
         public virtual string Description { get; } = "";
 
+        public bool HasLoaded { get; set; } = false;
+
         public virtual List<Type> RequiredComponents { get; } = new List<Type>();
 
         public virtual List<Type> MutuallyExclusiveComponents { get; } = new List<Type>();
@@ -79,6 +81,7 @@
 
         public virtual bool Start()
         {
+            HasLoaded = true;
             return true;
         }
     }

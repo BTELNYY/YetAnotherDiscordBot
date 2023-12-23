@@ -18,12 +18,12 @@ namespace YetAnotherDiscordBot.Commands
         public override async void Execute(SocketSlashCommand command)
         {
             base.Execute(command);
-            if(ShardWhoRanMe == null)
+            if(OwnerShard == null)
             {
                 Log.GlobalError("ShardWhoRanMe is null but a command went off on it.");
                 return;
             }
-            await command.RespondAsync("Pong!" + " Current ping is " + ShardWhoRanMe.Client.Latency + "ms");
+            await command.RespondAsync("Pong!" + " Current ping is " + OwnerShard.Client.Latency + "ms");
         }
     }
 }

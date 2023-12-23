@@ -128,7 +128,7 @@ namespace YetAnotherDiscordBot.Service
             }
         }
         
-        private static ServerConfiguration WriteServerConfiguration(ulong serverId)
+        public static ServerConfiguration WriteServerConfiguration(ulong serverId)
         {
             string folderPath = ServerConfigFolder + serverId.ToString();
             if (!Directory.Exists(folderPath))
@@ -141,7 +141,7 @@ namespace YetAnotherDiscordBot.Service
         }
 
 
-        private static ServerConfiguration WriteServerConfiguration(ulong serverId, ServerConfiguration configuration, bool overwrite = false)
+        public static ServerConfiguration WriteServerConfiguration(ulong serverId, ServerConfiguration configuration, bool overwrite = false)
         {
             string folderPath = ServerConfigFolder + serverId.ToString();
             if (!Directory.Exists(folderPath))

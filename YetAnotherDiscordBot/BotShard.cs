@@ -22,6 +22,8 @@ namespace YetAnotherDiscordBot
 
         private List<string> _alreadyPresentCommands = new List<string>();
 
+        public bool IsShuttingDown { get; private set; } = false;
+
         public ulong GuildID { get; private set; } = 0;
 
         public DiscordSocketClient Client 
@@ -49,6 +51,8 @@ namespace YetAnotherDiscordBot
 
         private ServerConfiguration? _serverConfig;
 
+        
+
         public ServerConfiguration ServerConfiguration
         {
             get
@@ -64,6 +68,11 @@ namespace YetAnotherDiscordBot
                     return _serverConfig;
                 }
             }
+        }
+
+        public void SaveServerConfiguration()
+        {
+            ConfigurationService.WriteServerConfiguration(GuildID, ServerConfiguration, true);
         }
 
         public SocketGuild TargetGuild
@@ -96,15 +105,12 @@ namespace YetAnotherDiscordBot
         {
             get
             {
-                if(_log == null)
-                {
-                    _log = new Log(GuildID);
-                }
+                _log ??= new Log(GuildID);
                 return _log;
             }
         }
 
-        public DiscordUserDataService? _discordUserDataService;
+        private DiscordUserDataService? _discordUserDataService;
 
         public DiscordUserDataService DiscordUserDataService
         {
@@ -137,6 +143,10 @@ namespace YetAnotherDiscordBot
 
         public void OnSlashCommandExecuted(SocketSlashCommand command)
         {
+            if (IsShuttingDown)
+            {
+                return;
+            }
             if (!CommandHandler.Commands.ContainsKey(command.CommandName) && !PerBotCommands.ContainsKey(command.CommandName))
             {
                 Log.Error("Command Not registered in Dict: " + command.CommandName);
@@ -252,6 +262,14 @@ namespace YetAnotherDiscordBot
         public void OnShutdown()
         {
             Log.Info("Attempting to shut down thread " + GuildID.ToString());
+            ComponentManager.OnShutdown();
+            IsShuttingDown = true;
+            PerBotCommands.Clear();
+            _alreadyPresentCommands.Clear();
+            _componentManager = null;
+            _discordUserDataService = null;
+            _serverConfig = null;
+            _log = null;
         }
     }
 }

@@ -24,11 +24,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
             base.Execute(command);
             SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
             SocketGuildUser target = (SocketGuildUser)options[0].Value;
-            if (ShardWhoRanMe is null)
+            if (OwnerShard is null)
             {
                 return;
             }
-            ModerationComponent moderationComponent = ShardWhoRanMe.ComponentManager.GetComponent<ModerationComponent>(out bool success);
+            ModerationComponent moderationComponent = OwnerShard.ComponentManager.GetComponent<ModerationComponent>(out bool success);
             if (!success)
             {
                 Log.Warning("Failed to fetch Moderation Component!");
@@ -37,7 +37,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
             }
             long length = (long)options[1].Value;
             string reason = (string)options[2].Value;
-            SocketGuildUser author = ShardWhoRanMe.TargetGuild.GetUser(command.User.Id);
+            SocketGuildUser author = OwnerShard.TargetGuild.GetUser(command.User.Id);
             if (length < 30)
             {
                 //too short of length

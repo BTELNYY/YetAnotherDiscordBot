@@ -18,7 +18,7 @@ namespace YetAnotherDiscordBot.CommandBase
         public virtual List<CommandOptionsBase> Options { get; } = new List<CommandOptionsBase>();
         public virtual bool IsDefaultEnabled { get; } = true;
         public virtual List<string> Aliases { get; } = new();
-        public BotShard? ShardWhoRanMe { get; private set; }
+        public BotShard? OwnerShard { get; private set; }
         public virtual List<Type> RequiredComponents { get; } = new List<Type>();
 
         private Log? _log;
@@ -29,13 +29,13 @@ namespace YetAnotherDiscordBot.CommandBase
             {
                 if(_log == null)
                 {
-                    if(ShardWhoRanMe == null)
+                    if(OwnerShard == null)
                     {
                         _log = new Log(0);
                     }
                     else
                     {
-                        _log = new Log(ShardWhoRanMe.GuildID);
+                        _log = new Log(OwnerShard.GuildID);
                     }
                 }
                 return _log;
@@ -47,7 +47,7 @@ namespace YetAnotherDiscordBot.CommandBase
         {
             if(command.GuildId.HasValue)
             {
-                ShardWhoRanMe = Program.GetShard(command.GuildId.Value);
+                OwnerShard = Program.GetShard(command.GuildId.Value);
             }
             else
             {

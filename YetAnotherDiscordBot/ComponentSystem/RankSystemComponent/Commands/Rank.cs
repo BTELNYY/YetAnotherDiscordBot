@@ -23,12 +23,12 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent.Commands
         public override void Execute(SocketSlashCommand command)
         {
             base.Execute(command);
-            if(ShardWhoRanMe == null)
+            if(OwnerShard == null)
             {
                 command.RespondAsync("An error has occured: Shard reference is null!");
                 return;
             }
-            RankSystemComponent rankSystemComponent = ShardWhoRanMe.ComponentManager.GetComponent<RankSystemComponent>(out bool success);
+            RankSystemComponent rankSystemComponent = OwnerShard.ComponentManager.GetComponent<RankSystemComponent>(out bool success);
             if (!success)
             {
                 command.RespondAsync("Failed to get RankSystemComponent!");
@@ -40,7 +40,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent.Commands
             {
                 target = (SocketGuildUser)optionsOrdered[0].Value;
             }
-            DiscordUserRankData discordUserRankData = ShardWhoRanMe.DiscordUserDataService.GetData<DiscordUserRankData>(target.Id);
+            DiscordUserRankData discordUserRankData = OwnerShard.DiscordUserDataService.GetData<DiscordUserRankData>(target.Id);
             EmbedBuilder embed = new EmbedBuilder();
             embed.WithTitle("Rank data for " + target.GlobalName);
             embed.WithCurrentTimestamp();

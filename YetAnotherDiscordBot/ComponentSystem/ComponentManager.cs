@@ -71,14 +71,24 @@ namespace YetAnotherDiscordBot.ComponentSystem
                 CurrentComponents.Add(component);
                 component.OnAdded(BotShard);
                 totalCounter++;
+                successCounter++;
             }
+            Log.Info($"Added {successCounter} out of {totalCounter} of components.");
+            CheckComponents();
+        }
+
+
+        public void CheckComponents()
+        {
+            int totalCounter = BotShard.ServerConfiguration.AddedComponents.Count;
+            int successCounter = 0;
             List<Component> invalidComponents = new();
-            foreach(Component c in CurrentComponents)
+            foreach (Component c in CurrentComponents)
             {
                 c.OnValidate();
                 if (c.RequiredComponents.Count > 0 && CurrentComponents.Where(x => c.RequiredComponents.Contains(x.GetType())).ToList().Count == 0)
                 {
-                    Log.Error($"Component {c.Name} is missing required dependencies. \n List of dependencies: {string.Join(", ", c.RequiredComponents.Select(x => x.Name))}" );
+                    Log.Error($"Component {c.Name} is missing required dependencies. \n List of dependencies: {string.Join(", ", c.RequiredComponents.Select(x => x.Name))}");
                     invalidComponents.Add(c);
                     continue;
                 }
@@ -88,7 +98,7 @@ namespace YetAnotherDiscordBot.ComponentSystem
                     invalidComponents.Add(c);
                     continue;
                 }
-                foreach(Type cmd in c.ImportedCommands)
+                foreach (Type cmd in c.ImportedCommands)
                 {
                     if (!cmd.IsSubclassOf(typeof(Command)))
                     {
@@ -96,7 +106,7 @@ namespace YetAnotherDiscordBot.ComponentSystem
                         continue;
                     }
                     Command? command = (Command?)Activator.CreateInstance(cmd);
-                    if(command == null)
+                    if (command == null)
                     {
                         Log.Warning($"Command for type {cmd.FullName} is null, activator failed.");
                         continue;
@@ -125,17 +135,23 @@ namespace YetAnotherDiscordBot.ComponentSystem
             Log.Info($"Successfully added {successCounter} out of {totalCounter} components to shard ID {BotShard.GuildID}");
             int validatedTotal = 0;
             int validatedSuccess = 0;
-            foreach(Component validated in CurrentComponents)
+            foreach (Component validated in CurrentComponents)
             {
-                if (validated.Start())
+                if (validated.HasLoaded)
                 {
                     validatedSuccess++;
                 }
+                else
+                {
+                    if (validated.Start())
+                    {
+                        validatedSuccess++;
+                    }
+                }
                 validatedTotal++;
             }
-            Log.Info($"Successfully started {validatedSuccess} out of {validatedTotal} validated components. Total components listed was {totalCounter}");
+            Log.Info($"Successfully started {validatedSuccess} out of {validatedTotal} validated components. Total components listed was {BotShard.ServerConfiguration.AddedComponents.Count}");
         }
-
 
         public static Component GetComponentByName(string name, out bool success)
         {

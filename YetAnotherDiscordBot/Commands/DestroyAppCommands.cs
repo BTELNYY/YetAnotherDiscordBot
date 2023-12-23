@@ -12,26 +12,26 @@ namespace YetAnotherDiscordBot.Commands
     public class DestroyAppCommands : Command
     {
         public override string CommandName => "destroycommands";
-        public override string Description => "Destroy ALL global application commands, then restart.";
+        public override string Description => "Destroy ALL shard commands, then restart the shard.";
         public override GuildPermission RequiredPermission => GuildPermission.Administrator;
 
         public override void Execute(SocketSlashCommand command)
         {
             base.Execute(command);
-            if(ShardWhoRanMe == null)
+            if(OwnerShard == null)
             {
                 return;
             }
             command.RespondAsync("Destroying all commands.");
-            var commands = ShardWhoRanMe.Client.GetGlobalApplicationCommandsAsync();
-            commands.Wait();
-            foreach (var thing in commands.Result)
+            var commands = OwnerShard.TargetGuild.GetApplicationCommandsAsync().Result.Where(x => x.ApplicationId == OwnerShard.Client.GetApplicationInfoAsync().Result.Id);
+            foreach (var thing in commands)
             {
                 Log.Info("Destroying command: " + thing.Name);
                 thing.DeleteAsync().Wait();
             }
             command.Channel.SendMessageAsync("Commands Destroyed, restarting.");
             Environment.Exit(1);
+            Program.RestartShard(OwnerShard.GuildID);
         }
     }
 }

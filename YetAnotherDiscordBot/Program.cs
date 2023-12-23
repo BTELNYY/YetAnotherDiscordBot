@@ -40,6 +40,16 @@ namespace YetAnotherDiscordBot
             }
         }
 
+        public static void RemoveShard(ulong id)
+        {
+            if(GuildToThread.ContainsKey(id))
+            {
+                BotShard shard = GuildToThread[id];
+                BotToThread.Remove(shard);
+                GuildToThread.Remove(id);
+            }
+        }
+
         public static bool HasShard(ulong id)
         {
             return GuildToThread.ContainsKey(id);
@@ -142,6 +152,7 @@ namespace YetAnotherDiscordBot
             foreach (BotShard shard in BotToThread.Keys)
             {
                 shard.OnShutdown();
+                RemoveShard(shard.GuildID);
             }
             Log.GlobalInfo("Logging out off Discord...");
             Client.LogoutAsync();
@@ -168,11 +179,36 @@ namespace YetAnotherDiscordBot
             {
                 return GuildToThread[guildId];
             }
+            Log.GlobalInfo("Starting shard. ID: " + guildId);
             BotShard bot = new(guildId);
             Thread thread = new(bot.StartBot);
             thread.Start();
             BotToThread.Add(bot, thread);
             return bot;
+        }
+
+        public static void StopShard(ulong guildId)
+        {
+            if (HasShard(guildId))
+            {
+                GetShard(guildId).OnShutdown();
+            }
+        }
+
+        public static void RestartShard(ulong guildId)
+        {
+            if (HasShard(guildId))
+            {
+                Log.GlobalInfo("Restarting Shard " + guildId.ToString());
+                GetShard(guildId).OnShutdown();
+                RemoveShard(guildId);
+                StartShard(guildId);
+                Log.GlobalInfo("Shard Restart Complete. ID: " + guildId.ToString());
+            }
+            else
+            {
+                Log.GlobalWarning("Tried to restart shard that doesn't exist. ID: " + guildId.ToString());
+            }
         }
     }
 }

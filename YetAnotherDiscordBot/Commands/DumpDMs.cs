@@ -21,7 +21,7 @@ namespace YetAnotherDiscordBot.Commands
         public async override void Execute(SocketSlashCommand command)
         {
             base.Execute(command);
-            if(ShardWhoRanMe == null)
+            if(OwnerShard == null)
             {
                 await command.RespondAsync("Sorry, an error has occured.", ephemeral: true);
                 return;
@@ -38,7 +38,7 @@ namespace YetAnotherDiscordBot.Commands
                 await command.RespondAsync(embed: new EmbedBuilder().GetErrorEmbed("Error", "You must enter a valid discord ID."), ephemeral: true);
                 return;
             }
-            SocketUser? targetUser = ShardWhoRanMe.Client.GetUser((ulong)userId);
+            SocketUser? targetUser = OwnerShard.Client.GetUser((ulong)userId);
             if(targetUser == null)
             {
                 await command.RespondAsync(embed: new EmbedBuilder().GetErrorEmbed("Error", "Can't find user by ID."), ephemeral: true);

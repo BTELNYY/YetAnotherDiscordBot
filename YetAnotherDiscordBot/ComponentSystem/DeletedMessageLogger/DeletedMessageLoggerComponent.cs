@@ -104,6 +104,10 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
                 }
                 eb.AddField("Attachments", atturls);
                 embeds = new Embed[] { eb.Build() };
+                if(atturls == "")
+                {
+                    atturls = "(No Attachment URLs Available)";
+                }
                 _textChannel.SendMessageAsync(atturls, embeds: embeds);
             }
             else

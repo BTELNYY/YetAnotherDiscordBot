@@ -78,6 +78,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
             eb.WithTitle("Deleted Message");
             eb.AddField("Author", "<@" + msg.Value.Author.Id + ">");
             eb.AddField("Channel", "<#" + channel.Id + ">");
+            eb.WithAuthor(msg.Value.Author);
             if (msg.Value.Content != null || !string.IsNullOrEmpty(msg.Value.Content))
             {
                 if (msg.Value.Content.Length > 0)
@@ -87,12 +88,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
             }
             if (msg.Value.Attachments.Count > 0)
             {
+                Embed[] embeds = { };
                 string atturls = "";
                 foreach (var att in msg.Value.Attachments)
                 {
                     string attachmentparsed = att.Url.Replace("media", "cdn").Replace("net", "com");
-                    Log.Debug(attachmentparsed);
-                    Log.Debug(att.Url);
                     if (att == msg.Value.Attachments.Last())
                     {
                         atturls += attachmentparsed;
@@ -103,8 +103,8 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
                     }
                 }
                 eb.AddField("Attachments", atturls);
-                Embed[] embeds = { eb.Build() };
-                _textChannel.SendMessageAsync(embeds: embeds);
+                embeds = new Embed[] { eb.Build() };
+                _textChannel.SendMessageAsync(atturls, embeds: embeds);
             }
             else
             {

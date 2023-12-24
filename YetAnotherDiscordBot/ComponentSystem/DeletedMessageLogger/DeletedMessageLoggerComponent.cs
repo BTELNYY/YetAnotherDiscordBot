@@ -88,7 +88,8 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
             }
             if (msg.Value.Attachments.Count > 0)
             {
-                Embed[] embeds = { };
+                List<Embed> embeds = new List<Embed>();
+                List<Embed> msgEmbeds = new List<Embed>();
                 string atturls = "";
                 foreach (var att in msg.Value.Attachments)
                 {
@@ -101,14 +102,16 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
                     {
                         atturls += attachmentparsed + "\n";
                     }
+                    EmbedBuilder builder = new EmbedBuilder();
+                    builder.WithUrl(attachmentparsed);
+                    builder.WithImageUrl(attachmentparsed);
+                    builder.AddField("URL", attachmentparsed);
+                    msgEmbeds.Add(builder.Build());
                 }
                 eb.AddField("Attachments", atturls);
-                embeds = new Embed[] { eb.Build() };
-                if(atturls == "")
-                {
-                    atturls = "(No Attachment URLs Available)";
-                }
-                _textChannel.SendMessageAsync(atturls, embeds: embeds);
+                embeds.Add(eb.Build());
+                embeds = embeds.Concat(msgEmbeds).ToList();
+                _textChannel.SendMessageAsync(embeds: embeds.ToArray());
             }
             else
             {

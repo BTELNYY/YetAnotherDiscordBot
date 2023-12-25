@@ -236,7 +236,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             return true;
         }
 
-        public void LockdownChannel(SocketTextChannel textchannel, SocketGuildUser author, bool useWarning = false)
+        public void LockdownChannel(SocketTextChannel textchannel, SocketGuildUser author, bool useWarning = false, bool checkEveryonePerms = false)
         {
             //This should almost never happen.
             //seethe
@@ -244,6 +244,15 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             {
                 Log.Error("Tried to lockdown a channel across another guild.");
                 return;
+            }
+            OverwritePermissions? overwrites = textchannel.GetPermissionOverwrite(OwnerShard.TargetGuild.EveryoneRole);
+            if (overwrites != null)
+            {
+                if(overwrites.Value.SendMessages == PermValue.Deny && checkEveryonePerms)
+                {
+                    Log.Debug("This channel can't be locked, @everyone can't type anyway.");
+                    return;
+                }
             }
             if (_channelLocks.ContainsKey(textchannel.Id))
             {

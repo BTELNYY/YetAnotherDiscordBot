@@ -99,6 +99,7 @@ namespace YetAnotherDiscordBot
             {
                 Log.GlobalWarning("Runtime removed from guild. Stopping shard. ID: " + guild.Id);
                 GetShard(guild.Id).OnShutdown();
+                RemoveShard(guild.Id);
             }
             return Task.CompletedTask;
         }

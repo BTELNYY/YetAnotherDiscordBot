@@ -236,7 +236,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             return true;
         }
 
-        public void LockdownChannel(SocketTextChannel textchannel, SocketGuildUser author, bool useWarning = false, bool checkEveryonePerms = false)
+        public async void LockdownChannel(SocketTextChannel textchannel, SocketGuildUser author, bool useWarning = false, bool checkEveryonePerms = false, bool showLockdownMessage = true)
         {
             //This should almost never happen.
             //seethe
@@ -253,7 +253,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             OverwritePermissions? overwrites = textchannel.GetPermissionOverwrite(OwnerShard.TargetGuild.EveryoneRole);
             if (overwrites != null)
             {
-                if (overwrites.Value.SendMessages == PermValue.Deny && checkEveryonePerms)
+                if (overwrites.Value.ViewChannel == PermValue.Deny && checkEveryonePerms)
                 {
                     Log.Debug("This channel can't be locked, @everyone can't type anyway.");
                     return;
@@ -266,19 +266,22 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
                     if (thing.TargetType == PermissionTarget.Role)
                     {
                         var r = OwnerShard.TargetGuild.GetRole(thing.TargetId);
-                        textchannel.AddPermissionOverwriteAsync(r, thing.Permissions);
+                        await textchannel.AddPermissionOverwriteAsync(r, thing.Permissions);
                     }
                 }
                 _channelLocks.Remove(textchannel.Id);
-                textchannel.SendMessageAsync(Configuration.TranslationsData.LockdownEnded);
+                if (showLockdownMessage)
+                {
+                    await textchannel.SendMessageAsync(Configuration.TranslationsData.LockdownEnded);
+                }
             }
             else
             {
                 if (useWarning)
                 {
                     string message = Configuration.TranslationsData.LockdownWarning.Replace("{channelId}", textchannel.Id.ToString()).Replace("{length}", Configuration.LockdownDelay.ToString()).Replace("{url}", Configuration.LockdownWarningVideoURL);
-                    textchannel.SendMessageAsync(message);
-                    Task.Run(() => DelayedLockdown(textchannel));
+                    await textchannel.SendMessageAsync(message);
+                    await Task.Run(() => DelayedLockdown(textchannel));
                 }
                 else
                 {
@@ -291,11 +294,14 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
                         if (thing.TargetType == PermissionTarget.Role)
                         {
                             var r = OwnerShard.TargetGuild.GetRole(thing.TargetId);
-                            textchannel.RemovePermissionOverwriteAsync(r);
+                            await textchannel.RemovePermissionOverwriteAsync(r);
                         }
                     }
-                    textchannel.AddPermissionOverwriteAsync(role, perms);
-                    textchannel.SendMessageAsync(Configuration.TranslationsData.LockdownStarted);
+                    await textchannel.AddPermissionOverwriteAsync(role, perms);
+                    if (showLockdownMessage)
+                    {
+                        await textchannel.SendMessageAsync(Configuration.TranslationsData.LockdownStarted);
+                    }
                 }
             }
             EmbedBuilder eb = new();
@@ -318,7 +324,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
                 Log.Error("Target channel is null!");
                 return;
             }
-            _targetChannel.SendMessageAsync(embed: eb.Build());
+            await _targetChannel.SendMessageAsync(embed: eb.Build());
         }
 
         async Task DelayedLockdown(SocketTextChannel textchannel)

@@ -245,13 +245,16 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
                 Log.Error("Tried to lockdown a channel across another guild.");
                 return;
             }
-            OverwritePermissions? overwrites = textchannel.GetPermissionOverwrite(OwnerShard.TargetGuild.EveryoneRole);
-            if (overwrites != null)
+            if(textchannel is not SocketThreadChannel)
             {
-                if(overwrites.Value.SendMessages == PermValue.Deny && checkEveryonePerms)
+                OverwritePermissions? overwrites = textchannel.GetPermissionOverwrite(OwnerShard.TargetGuild.EveryoneRole);
+                if (overwrites != null)
                 {
-                    Log.Debug("This channel can't be locked, @everyone can't type anyway.");
-                    return;
+                    if (overwrites.Value.SendMessages == PermValue.Deny && checkEveryonePerms)
+                    {
+                        Log.Debug("This channel can't be locked, @everyone can't type anyway.");
+                        return;
+                    }
                 }
             }
             if (_channelLocks.ContainsKey(textchannel.Id))

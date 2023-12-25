@@ -37,11 +37,12 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
                 return;
             }
             List<SocketTextChannel> channels = OwnerShard.TargetGuild.TextChannels.ToList();
-            foreach(SocketTextChannel channel in channels)
+            command.RespondAsync("Success, it may take time for the bot to run through the channel list. Check audit log if you want progress updates.", ephemeral: true);
+            foreach (SocketTextChannel channel in channels)
             {
+                Log.Info(channel.Name);
                 moderationComponent.LockdownChannel(channel, (SocketGuildUser)command.User);
             }
-            command.RespondAsync("Success.", ephemeral: true);
         }
     }
 }

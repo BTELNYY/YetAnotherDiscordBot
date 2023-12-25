@@ -22,7 +22,8 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             typeof(BanUser),
             typeof(KickUser),
             typeof(LockdownChannel),
-            typeof(TimeoutUser)
+            typeof(TimeoutUser),
+            typeof(ServerLockdown),
         };
 
         public ModeratonComponentConfiguration Configuration { get; private set; } = new ModeratonComponentConfiguration();

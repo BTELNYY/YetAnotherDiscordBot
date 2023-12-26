@@ -253,7 +253,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             OverwritePermissions? overwrites = textchannel.GetPermissionOverwrite(OwnerShard.TargetGuild.EveryoneRole);
             if (overwrites != null)
             {
-                if (overwrites.Value.ViewChannel == PermValue.Deny && checkEveryonePerms)
+                if ((overwrites.Value.ViewChannel == PermValue.Deny && overwrites.Value.SendMessages == PermValue.Deny) && checkEveryonePerms)
                 {
                     Log.Debug("This channel can't be locked, @everyone can't type anyway.");
                     return;

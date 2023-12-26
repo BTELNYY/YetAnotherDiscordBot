@@ -16,6 +16,33 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
 
         private SocketTextChannel? _textChannel;
 
+        private SocketGuild? _targetGuild;
+
+        public SocketGuild TargetGuild
+        {
+            get
+            {
+                if(_targetGuild == null)
+                {
+                    return OwnerShard.TargetGuild;
+                }
+                else
+                {
+                    return _targetGuild;
+                }
+            }
+        }
+
+        private bool _isUsingAlternateGuild = false;
+
+        public bool IsUsingAlternativeGuild
+        {
+            get
+            {
+                return _isUsingAlternateGuild;
+            }
+        }
+
         public override void OnValidated()
         {
             base.OnValidated();
@@ -30,8 +57,25 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
                 Log.Warning($"Failed to get configuration for {nameof(DeletedMessageLoggerComponent)}");
                 return success;
             }
-            OwnerShard.Client.MessageDeleted += MessageDeleted;
-            SocketTextChannel channel = OwnerShard.TargetGuild.GetTextChannel(Configuration.ChannelID);
+            if(Configuration.GuildID != 0)
+            {
+                SocketGuild? guild = OwnerShard.Client.GetGuild(Configuration.GuildID);
+                if(guild == null)
+                {
+                    Log.Warning("Alternative Guild is defined but cannot be found!");
+                    _targetGuild = OwnerShard.TargetGuild;
+                }
+                else
+                {
+                    _targetGuild = guild;
+                    _isUsingAlternateGuild = true;
+                }
+            }
+            else
+            {
+                _targetGuild = OwnerShard.TargetGuild;
+            }
+            SocketTextChannel channel = _targetGuild.GetTextChannel(Configuration.ChannelID);
             if(channel == null)
             {
                 Log.Warning($"[{nameof(DeletedMessageLoggerComponent)}] Invalid channel ID: {Configuration.ChannelID}");
@@ -40,6 +84,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
             {
                 _textChannel = channel;
             }
+            OwnerShard.Client.MessageDeleted += MessageDeleted;
             return true;
         }
 

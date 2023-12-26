@@ -63,6 +63,10 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
                     _usingAlternativeGuild = true;
                 }
             }
+            else
+            {
+                _targetGuild = OwnerShard.TargetGuild;
+            }
             if(Configuration.ChannelID != 0) 
             {
                 if (_targetGuild != null)

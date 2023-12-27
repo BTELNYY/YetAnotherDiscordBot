@@ -7,7 +7,7 @@ using YetAnotherDiscordBot.Configuration;
 
 namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
 {
-    public class SLAPIComponentConfiguration : ComponentServerConfiguration
+    public class SLAPIComponentConfiguration : ComponentConfiguration
     {
         public override string Filename => "SLAPIConfiguration.json";
 

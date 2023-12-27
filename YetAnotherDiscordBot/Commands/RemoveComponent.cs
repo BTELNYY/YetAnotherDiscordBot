@@ -42,7 +42,7 @@ namespace YetAnotherDiscordBot.Commands
             }
             OwnerShard.ServerConfiguration.AddedComponents.Remove(component);
             OwnerShard.SaveServerConfiguration();
-            command.RespondAsync("Success. Restart the shard to apply changes.");
+            command.RespondAsync("Success. Restart the shard to apply changes.", ephemeral: true);
         }
 
         public override void BuildOptions()

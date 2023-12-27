@@ -118,6 +118,22 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             }
         }
 
+        public void SendMessageToAudit(SocketGuildUser author, string action, string reason)
+        {
+            EmbedBuilder eb = new();
+            eb.WithTitle($"Moderation action taken");
+            eb.WithCurrentTimestamp();
+            eb.WithColor(Color.Orange);
+            eb.AddField(Configuration.TranslationsData.AutherText, author.DisplayName);
+            eb.AddField(Configuration.TranslationsData.ReasonText, reason);
+            eb.AddField(Configuration.TranslationsData.ActionText, action);
+            if (_targetChannel is null)
+            {
+                return;
+            }
+            _targetChannel.SendMessageAsync(embed: eb.Build());
+        }
+
         public bool PunishUser(SocketGuildUser user, SocketGuildUser author, Punishment punishment, string reason, TimeSpan? duration = null, SocketGuildChannel? channel = null, bool showMessage = true, bool sendDm = true)
         {
             if(user is null || author is null || reason is null)

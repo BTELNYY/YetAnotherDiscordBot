@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace YetAnotherDiscordBot.Configuration
 {
-    public class ComponentServerConfiguration : Configuration
+    public class ComponentConfiguration : Configuration
     {
         public virtual string Filename { get; } = "config.json";
     }

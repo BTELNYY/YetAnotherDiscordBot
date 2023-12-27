@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -37,8 +38,12 @@ namespace YetAnotherDiscordBot.Commands
             builder.WithColor(Color.Blue);
             builder.WithTitle("Active Components");
             builder.WithCurrentTimestamp();
+            if(resultStr == "")
+            {
+                resultStr = "No active components";
+            }
             builder.WithDescription("```" + resultStr + "```");
-            command.RespondAsync(embed: builder.Build());
+            command.RespondAsync(embed: builder.Build(), ephemeral: true);
         }
     }
 }

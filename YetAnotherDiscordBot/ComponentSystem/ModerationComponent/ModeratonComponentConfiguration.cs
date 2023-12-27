@@ -7,7 +7,7 @@ using YetAnotherDiscordBot.Configuration;
 
 namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 {
-    public class ModeratonComponentConfiguration : ComponentServerConfiguration
+    public class ModeratonComponentConfiguration : ComponentConfiguration
     {
         public override string Filename => "ModerationConfig.json";
 

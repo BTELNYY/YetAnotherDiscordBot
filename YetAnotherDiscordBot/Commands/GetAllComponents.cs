@@ -32,7 +32,7 @@ namespace YetAnotherDiscordBot.Commands
             embedBuilder.WithTitle("Components");
             embedBuilder.WithCurrentTimestamp();
             embedBuilder.WithDescription($"```{string.Join(",\n", components)}```");
-            command.RespondAsync(embed: embedBuilder.Build());
+            command.RespondAsync(embed: embedBuilder.Build(), ephemeral: true);
         }
     }
 }

@@ -7,7 +7,7 @@ using YetAnotherDiscordBot.Configuration;
 
 namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
 {
-    public class DeletedMessageConfiguration : ComponentServerConfiguration
+    public class DeletedMessageConfiguration : ComponentConfiguration
     {
         public override string Filename => "DeletedMessageConfig.json";
 

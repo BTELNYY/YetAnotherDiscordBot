@@ -164,7 +164,70 @@ namespace YetAnotherDiscordBot.Service
             return configuration;
         }
 
-        public static T GetComponentConfiguration<T>(T model, ulong serverId, out bool success, bool writeFile = false, bool doRewrite = true) where T : ComponentServerConfiguration
+        public static T GetComponentConfiguration<T>(ulong serverId, out bool success, bool writeFile = false, bool doRewrite = true) where T : ComponentConfiguration
+        {
+            T? model = (T?)Activator.CreateInstance(typeof(T));
+            if(model == null)
+            {
+                throw new InvalidOperationException("Failed to generate new instance of type " + typeof(T).FullName);
+            }
+            string filePath = ServerConfigFolder + serverId.ToString() + "/" + model.Filename;
+            if (!File.Exists(filePath))
+            {
+                if (writeFile)
+                {
+                    success = true;
+                    return WriteComponentConfiguration(model, serverId);
+                }
+                else
+                {
+                    success = false;
+                    T? result = (T?)Activator.CreateInstance(typeof(T));
+                    if (result == null)
+                    {
+                        return (T)new ComponentConfiguration();
+                    }
+                    else
+                    {
+                        return result;
+                    }
+                }
+            }
+            else
+            {
+                string data = File.ReadAllText(filePath);
+                T? json = JsonConvert.DeserializeObject<T>(data);
+                if (json == null)
+                {
+                    success = false;
+                    T? result = (T?)Activator.CreateInstance(typeof(T));
+                    if (result == null)
+                    {
+                        if (doRewrite)
+                        {
+                            WriteComponentConfiguration((T)new ComponentConfiguration(), serverId, overwrite: true);
+                        }
+                        return (T)new ComponentConfiguration();
+                    }
+                    else
+                    {
+                        return result;
+                    }
+                }
+                else
+                {
+                    success = true;
+                    if (doRewrite)
+                    {
+                        WriteComponentConfiguration<T>(json, serverId, overwrite: true);
+                    }
+                    return json;
+                }
+            }
+        }
+
+
+        public static T GetComponentConfiguration<T>(T model, ulong serverId, out bool success, bool writeFile = false, bool doRewrite = true) where T : ComponentConfiguration
         {
             string filePath = ServerConfigFolder + serverId.ToString() + "/" + model.Filename;
             if (!File.Exists(filePath))
@@ -180,7 +243,7 @@ namespace YetAnotherDiscordBot.Service
                     T? result = (T?)Activator.CreateInstance(typeof(T));
                     if(result == null)
                     {
-                        return (T)new ComponentServerConfiguration();
+                        return (T)new ComponentConfiguration();
                     }
                     else
                     {
@@ -200,9 +263,9 @@ namespace YetAnotherDiscordBot.Service
                     {
                         if (doRewrite)
                         {
-                            WriteComponentConfiguration((T)new ComponentServerConfiguration(), serverId, overwrite: true);
+                            WriteComponentConfiguration((T)new ComponentConfiguration(), serverId, overwrite: true);
                         }
-                        return (T)new ComponentServerConfiguration();
+                        return (T)new ComponentConfiguration();
                     }
                     else
                     {
@@ -221,7 +284,7 @@ namespace YetAnotherDiscordBot.Service
             }
         }
 
-        public static T WriteComponentConfiguration<T>(T model, ulong serverId, bool overwrite = false) where T : ComponentServerConfiguration
+        public static T WriteComponentConfiguration<T>(T model, ulong serverId, bool overwrite = false) where T : ComponentConfiguration
         {
             string filePath = ServerConfigFolder + serverId.ToString() + "/" + model.Filename;
             if (File.Exists(filePath))

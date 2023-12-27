@@ -7,7 +7,7 @@ using YetAnotherDiscordBot.Configuration;
 
 namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
 {
-    public class RankSystemComponentConfiguration : ComponentServerConfiguration
+    public class RankSystemComponentConfiguration : ComponentConfiguration
     {
         public override string Filename => "RankConfig.json";
 

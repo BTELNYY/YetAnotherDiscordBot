@@ -75,7 +75,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
                 return;
             }
             SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
-            int length = (int)options[0].Value;
+            long length = (long)options[0].Value;
             string reason = (string)options[1].Value;
             if(length < 0 || length > 21600)
             {
@@ -89,7 +89,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
             };
             channel.ModifyAsync(props =>
             {
-                props.SlowModeInterval = length;
+                props.SlowModeInterval = (int)length;
             }, discordOptions);
             moderationComponent.SendMessageToAudit((SocketGuildUser)command.User, "Slowmode Changed: " + length.ToString(), reason);
             command.RespondAsync("Success.", ephemeral: true);

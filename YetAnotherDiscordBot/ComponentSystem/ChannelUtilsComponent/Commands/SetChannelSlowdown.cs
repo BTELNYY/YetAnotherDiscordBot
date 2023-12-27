@@ -91,7 +91,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
             {
                 props.SlowModeInterval = (int)length;
             }, discordOptions);
-            moderationComponent.SendMessageToAudit((SocketGuildUser)command.User, "Slowmode Changed: " + length.ToString(), reason);
+            moderationComponent.SendMessageToAudit((SocketGuildUser)command.User, "Slowmode Changed, Now: " + length.ToString() + "s", reason);
             command.RespondAsync("Success.", ephemeral: true);
         }
     }

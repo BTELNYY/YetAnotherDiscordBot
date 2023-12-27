@@ -31,7 +31,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
             {
                 OptionType = Discord.ApplicationCommandOptionType.Integer,
                 Name = "duration",
-                Description = "The length of time for the slowmode to be, an integer between 0 and 21,600, represents the length in seconds.",
+                Description = "Integer between 0 and 21600 for the seconds of slowmode",
                 Required = true
             };
             CommandOptionsBase optionsBase1 = new CommandOptionsBase()

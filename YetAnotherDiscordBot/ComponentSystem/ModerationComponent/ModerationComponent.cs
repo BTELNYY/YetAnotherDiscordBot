@@ -92,6 +92,10 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 
         public void SendMessageToAudit(SocketGuildUser author, SocketGuildUser user, string action, string reason, bool sendDm = false)
         {
+            if(author == null)
+            {
+                return;
+            }
             EmbedBuilder eb = new();
             eb.WithTitle($"{user.DisplayName} was punished.");
             eb.WithCurrentTimestamp();
@@ -99,6 +103,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             eb.AddField(Configuration.TranslationsData.AutherText, author.DisplayName);
             eb.AddField(Configuration.TranslationsData.ReasonText, reason);
             eb.AddField(Configuration.TranslationsData.ActionText, action);
+            eb.WithAuthor(author);
             if(_targetChannel is null)
             {
                 return;
@@ -120,6 +125,10 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 
         public void SendMessageToAudit(SocketGuildUser author, string action, string reason)
         {
+            if(author == null)
+            {
+                return;
+            }
             EmbedBuilder eb = new();
             eb.WithTitle($"Moderation action taken");
             eb.WithCurrentTimestamp();
@@ -127,6 +136,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             eb.AddField(Configuration.TranslationsData.AutherText, author.DisplayName);
             eb.AddField(Configuration.TranslationsData.ReasonText, reason);
             eb.AddField(Configuration.TranslationsData.ActionText, action);
+            eb.WithAuthor(author);
             if (_targetChannel is null)
             {
                 return;
@@ -158,6 +168,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             eb.WithTitle($"{user.Username} was punished.");
             eb.WithCurrentTimestamp();
             eb.WithColor(Color.Orange);
+            eb.WithAuthor(author);
             eb.AddField(Configuration.TranslationsData.AutherText, $"<@{author.Id}> ({author.Username})");
             eb.AddField(Configuration.TranslationsData.TargetText, $"{user.Mention} ({user.Username})");
             eb.AddField(Configuration.TranslationsData.ReasonText, reason);
@@ -258,9 +269,13 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 
         public async void LockdownChannel(SocketTextChannel textchannel, SocketGuildUser author, bool useWarning = false, bool checkEveryonePerms = false, bool showLockdownMessage = true)
         {
+            if(author == null)
+            {
+                return;
+            }
             //This should almost never happen.
             //seethe
-            if(textchannel.Guild.Id != OwnerShard.GuildID)
+            if (textchannel.Guild.Id != OwnerShard.GuildID)
             {
                 Log.Error("Tried to lockdown a channel across another guild.");
                 return;
@@ -328,6 +343,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             eb.WithTitle("Channel Lockdown");
             eb.WithColor(Color.Orange);
             eb.WithCurrentTimestamp();
+            eb.WithAuthor(author);
             eb.AddField(Configuration.TranslationsData.AutherText, $"{author.Mention} ({author.Username})");
             eb.AddField(Configuration.TranslationsData.ChannelText, $"{textchannel.Mention} ({textchannel.Name})");
             bool channelState = _channelLocks.ContainsKey(textchannel.Id);

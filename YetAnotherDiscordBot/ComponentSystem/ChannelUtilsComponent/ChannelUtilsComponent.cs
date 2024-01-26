@@ -24,6 +24,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent
         public override List<Type> ImportedCommands => new List<Type>()
         {
             typeof(SetChannelSlowdown),
+            typeof(GetAllMessages),
         };
 
         private ChannelUtilsComponentConfiguration? _configuration;

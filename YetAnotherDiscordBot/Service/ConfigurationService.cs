@@ -14,6 +14,8 @@ namespace YetAnotherDiscordBot.Service
         //Server Config
         public const string ServerConfigFolder = ConfigFolder + "servers/";
 
+        public const string CacheFolder = ConfigFolder + "cache/";
+
         public static void Start()
         {
             if (!Directory.Exists(ConfigFolder))
@@ -27,6 +29,10 @@ namespace YetAnotherDiscordBot.Service
             if (!Directory.Exists(ServerConfigFolder))
             {
                 Directory.CreateDirectory(ServerConfigFolder);
+            }
+            if (!Directory.Exists(CacheFolder))
+            {
+                Directory.CreateDirectory(CacheFolder);
             }
         }
 

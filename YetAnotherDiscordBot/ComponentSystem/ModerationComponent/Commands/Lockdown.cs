@@ -74,7 +74,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
                 Name = "showcountdown",
                 Description = "sends the SCP:SL decontamination 30 second warning.",
                 OptionType = ApplicationCommandOptionType.Boolean,
-                Required = true
+                Required = false
             };
             Options.Clear();
             Options.Add(cob);

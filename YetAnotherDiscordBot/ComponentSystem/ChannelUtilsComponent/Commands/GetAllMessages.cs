@@ -120,6 +120,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
                 Description = "Should the output be a json array?",
                 Required = true,
             };
+            Options.Add(optionsBase);
         }
 
         public struct MessageData

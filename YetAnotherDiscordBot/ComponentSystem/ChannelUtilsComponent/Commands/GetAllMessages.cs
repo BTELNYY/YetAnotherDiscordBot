@@ -11,12 +11,16 @@ using YetAnotherDiscordBot.Service;
 
 namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
 {
-    
     public class GetAllMessages : Command
     {
         public override string CommandName => "getallmessages";
 
         public override string Description => "Get all the messages in current channel and send them to you.";
+
+        public override List<Type> RequiredComponents => new List<Type>()
+        {
+            typeof(ChannelUtilsComponent),
+        };
 
         public override GuildPermission RequiredPermission => GuildPermission.Administrator;
 

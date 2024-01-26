@@ -41,7 +41,9 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
             bool useJson = (bool)commandDataOptions[0].Value;
             await command.RespondAsync("This command will take a long time to finish. Please wait.", ephemeral: true);
             var messages = channel.GetMessagesAsync(int.MaxValue).FlattenAsync().Result;
-            string filepath = ConfigurationService.CacheFolder + $"backup_{channel.Name}_{DateTime.Now.ToString("dd-MM-yyyy")}-{DateTime.Now.ToString("hh\\:mm\\:ss")}.txt";
+            Log.Debug("Messages: " + messages.Count());
+            string filepath = ConfigurationService.CacheFolder + $"backup_{channel.Name}_{DateTime.Now.ToString("dd-MM-yyyy")}-{DateTime.Now.ToString("hh\\-mm\\-ss")}.txt";
+            Log.Debug("FilePath: " + filepath);
             StreamWriter sw = new StreamWriter(filepath, append: true);
             ulong counter = 0;
             List<MessageData> messagesStruct = new List<MessageData>();
@@ -82,23 +84,41 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
                     data.Message = message.Content;
                     data.UserID = message.Author.Id;
                     data.Username = message.Author.Username;
-                    data.Nickname = OwnerShard.TargetGuild.GetUser(data.UserID).Nickname;
+                    SocketGuildUser user = OwnerShard.TargetGuild.GetUser(message.Author.Id);
+                    if(user == null)
+                    {
+                        data.Nickname = message.Author.Username;
+                    }
+                    else
+                    {
+                        if(user.Nickname == null)
+                        {
+                            data.Nickname = message.Author.Username;
+                        }
+                        else
+                        {
+                            data.Nickname = user.Nickname;
+                        }
+                    }
                     data.TimeStamp = message.Timestamp.ToUnixTimeSeconds();
                     data.GuildID = OwnerShard.GuildID;
+                    messagesStruct.Add(data);
                 }
             }
             if (messagesStruct.Any())
             {
+                Log.Debug("Serialize Data!");
                 string data = JsonConvert.SerializeObject(messagesStruct, Formatting.None);
                 sw.Write(data);
             }
             sw.Close();
             try
             {
-                SocketDMChannel? DMChannel = command.User.CreateDMChannelAsync().Result as SocketDMChannel;
+                Log.Debug("Trying to dm user...");
+                IDMChannel? DMChannel = command.User.CreateDMChannelAsync().Result;
                 if (DMChannel == null)
                 {
-                    throw new InvalidOperationException("DM channel is null!");
+                    throw new InvalidOperationException("DM Channel is null!");
                 }
                 await DMChannel.SendFileAsync(filepath);
             }

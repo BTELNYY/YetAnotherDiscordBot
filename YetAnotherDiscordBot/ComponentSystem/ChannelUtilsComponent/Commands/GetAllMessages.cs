@@ -57,6 +57,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
             ulong counter = 0;
             ulong lastmessageid = 0;
             bool breakNextTime = false;
+            List<MessageData> messagesStruct = new List<MessageData>();
             while (true)
             {
                 Log.Info("Messages Parsed: " +  counter);
@@ -84,7 +85,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
                     moderationComponent.SendMessageToAudit(socketGuildUser, "Creating channel backup of " + channel.Mention + "\n Messages Logged: " + counter.ToString(), "Command");
                 }
                 Log.Debug("Messages: " + messages.Count());
-                List<MessageData> messagesStruct = new List<MessageData>();
                 foreach (var message in messages)
                 {
                     if (!useJson)
@@ -142,12 +142,12 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
                         messagesStruct.Add(data);
                     }
                 }
-                if (messagesStruct.Any())
-                {
-                    Log.Debug("Serialize Data!");
-                    string data = JsonConvert.SerializeObject(messagesStruct, Formatting.None);
-                    sw.Write(data);
-                }
+            }
+            if (messagesStruct.Any())
+            {
+                Log.Debug("Serialize Data!");
+                string data = JsonConvert.SerializeObject(messagesStruct, Formatting.None);
+                sw.Write(data);
             }
             sw.Close();
             moderationComponent.SendMessageToAudit(socketGuildUser, "Created channel backup of " + channel.Mention, "Command");

@@ -27,16 +27,19 @@ namespace YetAnotherDiscordBot.ComponentSystem.PingPreventionComponent.Commands
             base.Execute(command);
             if(OwnerShard == null)
             {
+                DisplayError(command);
                 return;
             }
             if (OptionsProcessed[0].Value is not SocketGuildUser target)
             {
+                DisplayError(command);
                 Log.Error($"Got an invalid object for a user.");
                 return;
             }
             PingPrevention component = OwnerShard.ComponentManager.GetComponent<PingPrevention>(out bool success);
             if (!success)
             {
+                DisplayError(command);
                 Log.Error("Unable to find PingPrevention component!");
                 return;
             }

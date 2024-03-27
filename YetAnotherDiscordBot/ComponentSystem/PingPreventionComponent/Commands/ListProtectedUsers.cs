@@ -54,7 +54,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.PingPreventionComponent.Commands
                 component.Configuration.Save();
             }
             EmbedBuilder builder = new EmbedBuilder();
-            builder.WithTitle("Ping Protected Users");
+            builder.WithTitle($"Ping Protected Users ({compiledList.Count()})");
             builder.WithDescription(compiledList);
             builder.WithCurrentTimestamp();
             builder.WithColor(Color.Blue);

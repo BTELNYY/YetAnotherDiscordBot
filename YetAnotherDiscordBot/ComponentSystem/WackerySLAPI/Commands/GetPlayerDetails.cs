@@ -24,7 +24,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI.Commands
         public override async void Execute(SocketSlashCommand command)
         {
             base.Execute(command);
-            SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
+            SocketSlashCommandDataOption[] options = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             Embed[] embeds;
             if (OwnerShard == null)
             {
@@ -107,7 +107,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI.Commands
 
         public override void BuildOptions()
         {
-            CommandOptionsBase cob = new()
+            CommandOption cob = new()
             {
                 Name = "user",
                 Description = "name of online user or ID64 of user.",

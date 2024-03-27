@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using YetAnotherDiscordBot.ComponentSystem.WackerySLAPI;
 using YetAnotherDiscordBot.Configuration;
 
 namespace YetAnotherDiscordBot.Service
@@ -42,12 +43,9 @@ namespace YetAnotherDiscordBot.Service
             {
                 if(_cachedGlobalConfiguration == null)
                 {
-                    return GetFileGlobalConfiguration();
+                    _cachedGlobalConfiguration = GetFileGlobalConfiguration();
                 }
-                else
-                {
-                    return _cachedGlobalConfiguration;
-                }
+                return _cachedGlobalConfiguration;
             }
         }
 
@@ -57,7 +55,6 @@ namespace YetAnotherDiscordBot.Service
         {
             if (!File.Exists(GlobalConfigFile))
             {
-                Log.GlobalError("Global configuration file does not exist!");
                 _cachedGlobalConfiguration = CreateGlobalConfiguration();
                 return _cachedGlobalConfiguration;
             }
@@ -67,8 +64,7 @@ namespace YetAnotherDiscordBot.Service
                 GlobalConfiguration? config = JsonConvert.DeserializeObject<GlobalConfiguration>(data);
                 if(config == null)
                 {
-                    Log.GlobalError("Failed to get GlobalConfig from string!");
-                    return CreateGlobalConfiguration();
+                    return CreateGlobalConfiguration(true);
                 }
                 else
                 {
@@ -95,14 +91,13 @@ namespace YetAnotherDiscordBot.Service
             File.WriteAllText(GlobalConfigFile, json);
         }
 
-        private static GlobalConfiguration CreateGlobalConfiguration()
+        private static GlobalConfiguration CreateGlobalConfiguration(bool recreate = false)
         {
-            if(File.Exists(GlobalConfigFile))
+            if(File.Exists(GlobalConfigFile) && !recreate)
             {
                 return GetFileGlobalConfiguration();
             }
             string json = JsonConvert.SerializeObject(new GlobalConfiguration(), Formatting.Indented);
-            Log.GlobalDebug(json);
             File.WriteAllText(GlobalConfigFile, json);
             return new GlobalConfiguration();
         }
@@ -189,14 +184,9 @@ namespace YetAnotherDiscordBot.Service
                 {
                     success = false;
                     T? result = (T?)Activator.CreateInstance(typeof(T));
-                    if (result == null)
-                    {
-                        return (T)new ComponentConfiguration();
-                    }
-                    else
-                    {
-                        return result;
-                    }
+                    result ??= (T)new ComponentConfiguration();
+                    result.OwnerID = serverId;
+                    return result;
                 }
             }
             else
@@ -213,12 +203,10 @@ namespace YetAnotherDiscordBot.Service
                         {
                             WriteComponentConfiguration((T)new ComponentConfiguration(), serverId, overwrite: true);
                         }
-                        return (T)new ComponentConfiguration();
+                        result = (T)new ComponentConfiguration();
                     }
-                    else
-                    {
-                        return result;
-                    }
+                    result.OwnerID = serverId;
+                    return result;
                 }
                 else
                 {
@@ -247,14 +235,9 @@ namespace YetAnotherDiscordBot.Service
                 {
                     success = false;
                     T? result = (T?)Activator.CreateInstance(typeof(T));
-                    if(result == null)
-                    {
-                        return (T)new ComponentConfiguration();
-                    }
-                    else
-                    {
-                        return result;
-                    }
+                    result ??= (T)new ComponentConfiguration();
+                    result.OwnerID = serverId;
+                    return result;
                 }
             }
             else
@@ -271,12 +254,10 @@ namespace YetAnotherDiscordBot.Service
                         {
                             WriteComponentConfiguration((T)new ComponentConfiguration(), serverId, overwrite: true);
                         }
-                        return (T)new ComponentConfiguration();
+                        result = (T)new ComponentConfiguration();
                     }
-                    else
-                    {
-                        return result;
-                    }
+                    result.OwnerID = serverId;
+                    return result;
                 }
                 else
                 {
@@ -313,6 +294,72 @@ namespace YetAnotherDiscordBot.Service
                 File.WriteAllText(filePath, json);
                 return GetComponentConfiguration(model, serverId, out bool result);
             }
+        }
+
+        /// <summary>
+        /// Saves configuration according to the internal <see cref="ComponentConfiguration.OwnerID"/> property, note that the bool
+        /// does not signify that the file has been written or not, just that validation has suceeded or not.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static bool SaveComponentConfiguration<T>(T? model) where T : ComponentConfiguration
+        {
+            if(model == null)
+            {
+                Log.GlobalError("Passed null model into the save config function.");
+                return false;
+            }
+            if(model.OwnerID == 0)
+            {
+                Log.GlobalError("Given an object with a invalid OwnerID.");
+                return false;
+            }
+            WriteComponentConfiguration(model, model.OwnerID, true);
+            return true;
+        }
+
+        public static bool ResetComponentConfiguration<T>(T model) where T : ComponentConfiguration
+        {
+            if (model == null)
+            {
+                Log.GlobalError("Passed null model into the save config function.");
+                return false;
+            }
+            if (model.OwnerID == 0)
+            {
+                Log.GlobalError("Given an object with a invalid OwnerID.");
+                return false;
+            }
+            T? newInstance = (T?)Activator.CreateInstance(model.GetType());
+            if (newInstance == null)
+            {
+                Log.GlobalError("Failed to create new instance of given type. Type: " + model.GetType().FullName);
+                return false;
+            }
+            WriteComponentConfiguration(newInstance, model.OwnerID, true);
+            return true;
+        }
+
+        public static bool DeleteComponentConfiguration<T>(T model) where T : ComponentConfiguration
+        {
+            if(model == null)
+            {
+                Log.GlobalError("Model is null in delete configuration method.");
+                return false;
+            }
+            if(model.OwnerID == 0)
+            {
+                Log.GlobalError("OwnerID given in Deleted component configuration is invalid.");
+                return false;
+            }
+            string filePath = ServerConfigFolder + model.OwnerID.ToString() + "/" + model.Filename;
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+                return true;
+            }
+            return false;
         }
     }
 }

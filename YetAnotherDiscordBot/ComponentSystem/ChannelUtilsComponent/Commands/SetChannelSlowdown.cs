@@ -27,14 +27,14 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
         public override void BuildOptions()
         {
             base.BuildOptions();
-            CommandOptionsBase optionsBase = new CommandOptionsBase()
+            CommandOption optionsBase = new CommandOption()
             {
                 OptionType = Discord.ApplicationCommandOptionType.Integer,
                 Name = "duration",
                 Description = "Integer between 0 and 21600 for the seconds of slowmode",
                 Required = true
             };
-            CommandOptionsBase optionsBase1 = new CommandOptionsBase()
+            CommandOption optionsBase1 = new CommandOption()
             {
                 OptionType = ApplicationCommandOptionType.String,
                 Name = "reason",
@@ -74,7 +74,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
                 command.RespondAsync("This command can only be run in text channels.");
                 return;
             }
-            SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
+            SocketSlashCommandDataOption[] options = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             long length = (long)options[0].Value;
             string reason = (string)options[1].Value;
             if(length < 0 || length > 21600)

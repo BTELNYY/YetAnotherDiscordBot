@@ -34,7 +34,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent.Commands
                 command.RespondAsync("Failed to get RankSystemComponent!");
                 return;
             }
-            SocketSlashCommandDataOption[] optionsOrdered = GetOptionsOrdered(command.Data.Options.ToList());
+            SocketSlashCommandDataOption[] optionsOrdered = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             SocketGuildUser target = (SocketGuildUser)command.User;
             if(command.Data.Options.Count > 0) 
             {
@@ -55,7 +55,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent.Commands
         public override void BuildOptions()
         {
             base.BuildOptions();
-            CommandOptionsBase cob = new CommandOptionsBase
+            CommandOption cob = new CommandOption
             {
                 Name = "user",
                 Description = "User whos rank you wish to see",

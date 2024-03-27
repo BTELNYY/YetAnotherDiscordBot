@@ -36,7 +36,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
                 await command.RespondAsync("An internal error has occured: OwnerShard is null!", ephemeral: true);
                 return;
             }
-            SocketSlashCommandDataOption[] commandDataOptions = GetOptionsOrdered(command.Data.Options.ToList());
+            SocketSlashCommandDataOption[] commandDataOptions = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             if(command.Channel is not SocketTextChannel channel)
             {
                 await command.RespondAsync(embed: new EmbedBuilder().GetErrorEmbed("Error", "Command must be ran in a text channel."), ephemeral: true);
@@ -172,7 +172,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
         {
             base.BuildOptions();
             Options.Clear();
-            CommandOptionsBase optionsBase = new CommandOptionsBase()
+            CommandOption optionsBase = new CommandOption()
             {
                 Name = "usejson",
                 OptionType = ApplicationCommandOptionType.Boolean,

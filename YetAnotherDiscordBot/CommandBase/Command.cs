@@ -15,11 +15,12 @@ namespace YetAnotherDiscordBot.CommandBase
         public virtual string Description { get; } = "Command Description";
         public virtual bool IsDMEnabled { get; } = false;
         public virtual GuildPermission RequiredPermission { get; } = GuildPermission.UseApplicationCommands;
-        public virtual List<CommandOptionsBase> Options { get; } = new List<CommandOptionsBase>();
+        public virtual List<CommandOption> Options { get; set; } = new List<CommandOption>();
         public virtual bool IsDefaultEnabled { get; } = true;
         public virtual List<string> Aliases { get; } = new();
-        public BotShard? OwnerShard { get; private set; }
         public virtual List<Type> RequiredComponents { get; } = new List<Type>();
+        public BotShard? OwnerShard { get; private set; }
+        public List<SocketSlashCommandDataOption> OptionsProcessed { get; private set; } = new List<SocketSlashCommandDataOption>();
 
         private Log? _log;
 
@@ -53,6 +54,7 @@ namespace YetAnotherDiscordBot.CommandBase
             {
                 Log.GlobalWarning("Ran a command without a guildid, probably a dm command. this is not allowed.");
             }
+            OptionsProcessed = GetOptionsOrdered(command.Data.Options.ToList()).ToList();
         }
 
         public virtual void BuildAliases()
@@ -64,7 +66,7 @@ namespace YetAnotherDiscordBot.CommandBase
 
         }
 
-        public virtual SocketSlashCommandDataOption[] GetOptionsOrdered(List<SocketSlashCommandDataOption> options)
+        public virtual IEnumerable<SocketSlashCommandDataOption> GetOptionsOrdered(IEnumerable<SocketSlashCommandDataOption> options)
         {
             SocketSlashCommandDataOption[] array = new SocketSlashCommandDataOption[Options.Count];
             foreach (var option in options)
@@ -113,6 +115,11 @@ namespace YetAnotherDiscordBot.CommandBase
                     return command;
                 }
             }
+        }
+
+        public void DisplayError(SocketSlashCommand command)
+        {
+            command.RespondAsync("An error has occured, see log for details.", ephemeral: true);
         }
     }
 }

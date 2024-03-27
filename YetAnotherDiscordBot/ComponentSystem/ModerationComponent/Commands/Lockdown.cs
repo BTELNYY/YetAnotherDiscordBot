@@ -37,7 +37,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
                 Log.Error("Failed to get moderation component.");
                 return;
             }
-            SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
+            SocketSlashCommandDataOption[] options = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             bool showCountdown = false;
             if (command.Data.Options.Count > 0 && options[0].Value is not null)
             {
@@ -69,7 +69,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
 
         public override void BuildOptions()
         {
-            CommandOptionsBase cob = new()
+            CommandOption cob = new()
             {
                 Name = "showcountdown",
                 Description = "sends the SCP:SL decontamination 30 second warning.",

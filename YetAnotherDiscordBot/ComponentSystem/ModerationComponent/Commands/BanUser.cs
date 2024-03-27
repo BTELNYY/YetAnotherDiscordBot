@@ -35,7 +35,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
                 Log.Warning("Failed to fetch Moderation Component!");
                 return;
             }
-            SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
+            SocketSlashCommandDataOption[] options = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             SocketGuildUser user = (SocketGuildUser)options[0].Value;
             SocketGuildUser author = OwnerShard.TargetGuild.GetUser(command.User.Id);
             string reason = (string)options[1].Value;
@@ -54,21 +54,21 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
         public override void BuildOptions()
         {
             base.BuildOptions();
-            CommandOptionsBase cob = new CommandOptionsBase()
+            CommandOption cob = new CommandOption()
             {
                 Name = "user",
                 Description = "User which to ban",
                 OptionType = ApplicationCommandOptionType.User,
                 Required = true,
             };
-            CommandOptionsBase cob1 = new CommandOptionsBase()
+            CommandOption cob1 = new CommandOption()
             {
                 Name = "reason",
                 Description = "Reason for being banned",
                 OptionType = ApplicationCommandOptionType.String,
                 Required = true
             };
-            CommandOptionsBase cob2 = new CommandOptionsBase()
+            CommandOption cob2 = new CommandOption()
             {
                 Name = "senddm",
                 Description = "Should the bot message the banned user?",

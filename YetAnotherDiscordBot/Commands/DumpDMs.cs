@@ -31,7 +31,7 @@ namespace YetAnotherDiscordBot.Commands
                 await command.RespondAsync(embed: new EmbedBuilder().GetErrorEmbed("Error", "You are not authorized to run this command."), ephemeral: true);
                 return;
             }
-            SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
+            SocketSlashCommandDataOption[] options = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             string input = (string)options[0];
             if (!long.TryParse(input, out long userId))
             {
@@ -83,7 +83,7 @@ namespace YetAnotherDiscordBot.Commands
         public override void BuildOptions()
         {
             base.BuildOptions();
-            CommandOptionsBase cob = new CommandOptionsBase()
+            CommandOption cob = new CommandOption()
             {
                 Name = "user",
                 Description = "User ID of the target user.",

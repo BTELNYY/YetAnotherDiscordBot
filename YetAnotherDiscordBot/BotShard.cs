@@ -182,7 +182,7 @@ namespace YetAnotherDiscordBot
             scb.WithDescription(command.Description);
             scb.WithDMPermission(command.IsDMEnabled);
             command.BuildOptions();
-            foreach (CommandOptionsBase cop in command.Options)
+            foreach (CommandOption cop in command.Options)
             {
                 scb.AddOption(cop.Name, cop.OptionType, cop.Description, cop.Required);
             }

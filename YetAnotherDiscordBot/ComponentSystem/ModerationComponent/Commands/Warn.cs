@@ -18,14 +18,14 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
         {
             base.BuildOptions();
             Options.Clear();
-            CommandOptionsBase optionsBase = new CommandOptionsBase()
+            CommandOption optionsBase = new CommandOption()
             {
                 Name = "user",
                 Description = "User which to warn",
                 OptionType = Discord.ApplicationCommandOptionType.User,
                 Required = true,
             };
-            CommandOptionsBase optionsBase1 = new CommandOptionsBase()
+            CommandOption optionsBase1 = new CommandOption()
             {
                 Name = "reason",
                 Description = "Reason for warning",

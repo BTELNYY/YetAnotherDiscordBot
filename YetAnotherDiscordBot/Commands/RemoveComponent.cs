@@ -27,7 +27,7 @@ namespace YetAnotherDiscordBot.Commands
                 command.RespondAsync("An error occured: OwnerShard is null.", ephemeral: true);
                 return;
             }
-            SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
+            SocketSlashCommandDataOption[] options = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             string component = (string)options[0].Value;
             Component componentClass = ComponentManager.GetComponentByName(component, out bool success);
             if (!success)
@@ -48,7 +48,7 @@ namespace YetAnotherDiscordBot.Commands
         public override void BuildOptions()
         {
             base.BuildOptions();
-            CommandOptionsBase cob = new CommandOptionsBase()
+            CommandOption cob = new CommandOption()
             {
                 Name = "component",
                 Required = true,

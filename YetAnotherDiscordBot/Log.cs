@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YetAnotherDiscordBot.Configuration;
 using YetAnotherDiscordBot.Service;
 
 namespace YetAnotherDiscordBot
@@ -24,6 +26,14 @@ namespace YetAnotherDiscordBot
             get
             {
                 return ConfigurationService.ServerConfigFolder + DiscordTarget.ToString() + "/logs/";
+            }
+        }
+
+        static GlobalConfiguration InternalConfig
+        {
+            get
+            {
+                return ConfigurationService.GlobalConfiguration;
             }
         }
 
@@ -79,6 +89,7 @@ namespace YetAnotherDiscordBot
 
         public void Write(LogLevel level, string message)
         {
+            StackFrame stackFrame = new StackFrame(2);
             string time = DateTime.Now.ToString("hh\\:mm\\:ss");
             string file = FilePath + FileName;
             if(DiscordTarget == 0)
@@ -86,8 +97,16 @@ namespace YetAnotherDiscordBot
                 GlobalWarning("Discord Target is 0, writing to global log. This should generally not happen.");
                 file = InternalConfig.LogPath + FileName;
             }
+            string stackframe = string.Empty;
+            if (InternalConfig.PrintStackFrames)
+            {
+                if (InternalConfig.StackframePrintLevels.Contains(level))
+                {
+                    stackframe = "Stackframe: \n " + stackFrame.ToString();
+                }
+            }
             StreamWriter sw = new StreamWriter(file, append: true);
-            sw.Write("[" + time + $" {level.ToString().ToUpper().Replace("_", " ")}]: " + message + "\n");
+            sw.Write("[" + time + $" {level.ToString().ToUpper().Replace("_", " ")}]: " + message + "\n" + stackframe);
             sw.Close();
             WriteConsole(level, message, DiscordTarget);
         }

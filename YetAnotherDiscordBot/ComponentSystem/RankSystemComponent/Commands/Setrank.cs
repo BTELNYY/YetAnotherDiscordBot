@@ -26,21 +26,21 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent.Commands
         public override void BuildOptions()
         {
             base.BuildOptions();
-            CommandOptionsBase cob = new CommandOptionsBase()
+            CommandOption cob = new CommandOption()
             {
                 Name = "target",
                 Required = true,
                 OptionType = ApplicationCommandOptionType.User,
                 Description = "User which rank to set",
             };
-            CommandOptionsBase cob1 = new CommandOptionsBase()
+            CommandOption cob1 = new CommandOption()
             {
                 Name = "rank",
                 Required = true,
                 OptionType = ApplicationCommandOptionType.Integer,
                 Description = "Integer of rank to set."
             };
-            CommandOptionsBase cob2 = new CommandOptionsBase()
+            CommandOption cob2 = new CommandOption()
             {
                 Name = "xp",
                 Required = false,
@@ -61,7 +61,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent.Commands
                 command.RespondAsync("An error occured: Shard is null.");
                 return;
             }
-            SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
+            SocketSlashCommandDataOption[] options = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             SocketGuildUser target = (SocketGuildUser)options[0].Value;
             long level = (long)options[1].Value;
             double xp = 0d;

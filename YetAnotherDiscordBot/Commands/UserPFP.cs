@@ -19,7 +19,7 @@ namespace YetAnotherDiscordBot.Commands
         public override void Execute(SocketSlashCommand command)
         {
             base.Execute(command);
-            SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
+            SocketSlashCommandDataOption[] options = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             SocketGuildUser user = (SocketGuildUser)options[0].Value;
             ulong id = user.Id;
             bool HasGuildPfp = false;
@@ -56,7 +56,7 @@ namespace YetAnotherDiscordBot.Commands
         public override void BuildOptions()
         {
             base.BuildOptions();
-            CommandOptionsBase cob = new CommandOptionsBase()
+            CommandOption cob = new CommandOption()
             {
                 Name = "user",
                 Description = "User to get the PFP from.",

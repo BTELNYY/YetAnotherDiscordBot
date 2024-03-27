@@ -22,7 +22,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
         public async override void Execute(SocketSlashCommand command)
         {
             base.Execute(command);
-            SocketSlashCommandDataOption[] options = GetOptionsOrdered(command.Data.Options.ToList());
+            SocketSlashCommandDataOption[] options = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             SocketGuildUser target = (SocketGuildUser)options[0].Value;
             if (OwnerShard is null)
             {
@@ -57,21 +57,21 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
 
         public override void BuildOptions()
         {
-            CommandOptionsBase cob = new()
+            CommandOption cob = new()
             {
                 Name = "user",
                 Description = "user to mute",
                 OptionType = ApplicationCommandOptionType.User,
                 Required = true
             };
-            CommandOptionsBase cob2 = new()
+            CommandOption cob2 = new()
             {
                 Name = "length",
                 Description = "amount of seconds to mute them for",
                 OptionType = ApplicationCommandOptionType.Integer,
                 Required = true
             };
-            CommandOptionsBase cob3 = new()
+            CommandOption cob3 = new()
             {
                 Name = "reason",
                 Description = "string reason",

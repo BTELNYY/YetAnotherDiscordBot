@@ -386,6 +386,22 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             await textchannel.SendMessageAsync(Configuration.TranslationsData.LockdownStarted);
         }
 
+        public static EmbedBuilder GetActionEmbed(SocketGuildUser target, SocketGuildUser author, string reason, Punishment punishment)
+        {
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.WithTitle($"{target.DisplayName} was punished.");
+            if(author != null)
+            {
+                eb.AddField("Author", author.Mention);
+            }
+            eb.AddField("Target", target.Mention);
+            eb.AddField("Reason", reason);
+            eb.AddField("Punishment", punishment.ToString());
+            eb.WithCurrentTimestamp();
+            eb.Color = Color.Red;
+            return eb;
+        }
+
         public static string GetTranslation(Punishment p)
         {
             return p.ToString();

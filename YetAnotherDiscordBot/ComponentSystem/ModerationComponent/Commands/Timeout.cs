@@ -37,6 +37,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
             }
             long length = (long)options[1].Value;
             string reason = (string)options[2].Value;
+            bool showPublicMessage = (bool)options[3].Value;
             SocketGuildUser author = OwnerShard.TargetGuild.GetUser(command.User.Id);
             if (length < 30)
             {
@@ -52,6 +53,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
             else
             {
                 await command.RespondAsync("Success", ephemeral: true);
+                if (showPublicMessage)
+                {
+                    EmbedBuilder builder = ModerationComponent.GetActionEmbed(target, author, reason, ModerationComponent.Punishment.Timeout);
+                    await command.Channel.SendMessageAsync(embed: builder.Build());
+                }
             }
         }
 
@@ -78,10 +84,18 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
                 OptionType = ApplicationCommandOptionType.String,
                 Required = true
             };
+            CommandOption cob4 = new CommandOption()
+            {
+                Name = "showpublicmsg",
+                Description = "Should the bot display a public message?",
+                OptionType = ApplicationCommandOptionType.Boolean,
+                Required = true
+            };
             Options.Clear();
             Options.Add(cob);
             Options.Add(cob2);
             Options.Add(cob3);
+            Options.Add(cob4);
         }
     }
 }

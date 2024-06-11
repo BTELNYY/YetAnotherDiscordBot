@@ -14,7 +14,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI.Commands
         public override string CommandName => "getplayerdetails";
         public override string Description => "Get details on a player";
         public override bool IsDefaultEnabled => true;
-        public override GuildPermission RequiredPermission => GuildPermission.UseApplicationCommands;
+        public override GuildPermission RequiredPermission => GuildPermission.ModerateMembers;
 
         public override List<Type> RequiredComponents => new List<Type>()
         {

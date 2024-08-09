@@ -102,15 +102,16 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             {
                 case ActionType.Ban:
                     SocketBanAuditLogData banData = (SocketBanAuditLogData)entry.Data;
-                    SendMessageToAudit(user, GetTranslation(Punishment.Ban), entry.Reason, banData.Target.Value);
+                    
+                    SendMessageToAudit(user, GetTranslation(Punishment.Ban), entry.Reason, banData.Target.GetOrDownloadAsync().Result);
                     break;
                 case ActionType.Kick:
                     SocketKickAuditLogData kickData = (SocketKickAuditLogData)entry.Data;
-                    SendMessageToAudit(user, GetTranslation(Punishment.Kick), entry.Reason, kickData.Target.Value);
+                    SendMessageToAudit(user, GetTranslation(Punishment.Kick), entry.Reason, kickData.Target.GetOrDownloadAsync().Result);
                     break;
                 case ActionType.Unban:
                     SocketUnbanAuditLogData unbanData = (SocketUnbanAuditLogData)entry.Data;
-                    SendMessageToAudit(user, "Unban", "None (Audit log unbans don't have a reason attached to them)", unbanData.Target.Value);
+                    SendMessageToAudit(user, "Unban", "None (Audit log unbans don't have a reason attached to them)", unbanData.Target.GetOrDownloadAsync().Result);
                     break;
             }
             return Task.CompletedTask;

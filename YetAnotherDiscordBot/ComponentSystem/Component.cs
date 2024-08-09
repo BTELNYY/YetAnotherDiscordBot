@@ -69,11 +69,17 @@
 
         }
 
+        /// <summary>
+        /// Called when the Bot Thread begins validating the component.
+        /// </summary>
         public virtual void OnValidate()
         {
 
         }
 
+        /// <summary>
+        /// Called when the Bot Thread validates a component.
+        /// </summary>
         public virtual void OnValidated()
         {
 

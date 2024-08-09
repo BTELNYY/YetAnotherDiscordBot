@@ -87,7 +87,39 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             {
                 Log.Warning("ChannelID in moderation config is 0.");
             }
+            OwnerShard.Client.AuditLogCreated += AuditLogCreated;
             return base.Start();
+        }
+
+        private Task AuditLogCreated(SocketAuditLogEntry entry, SocketGuild guild)
+        {
+            if(guild.Id != OwnerShard.GuildID)
+            {
+                return Task.CompletedTask;
+            }
+            SocketGuildUser user = OwnerShard.TargetGuild.GetUser(entry.User.Id);
+            switch (entry.Action)
+            {
+                case ActionType.Ban:
+                    SocketBanAuditLogData banData = (SocketBanAuditLogData)entry.Data;
+                    SendMessageToAudit(user, GetTranslation(Punishment.Ban), entry.Reason, banData.Target.Value);
+                    break;
+                case ActionType.Kick:
+                    SocketKickAuditLogData kickData = (SocketKickAuditLogData)entry.Data;
+                    SendMessageToAudit(user, GetTranslation(Punishment.Kick), entry.Reason, kickData.Target.Value);
+                    break;
+                case ActionType.Unban:
+                    SocketUnbanAuditLogData unbanData = (SocketUnbanAuditLogData)entry.Data;
+                    SendMessageToAudit(user, "Unban", "None (Audit log unbans don't have a reason attached to them)", unbanData.Target.Value);
+                    break;
+            }
+            return Task.CompletedTask;
+        }
+
+        public override void OnShutdown()
+        {
+            OwnerShard.Client.AuditLogCreated -= AuditLogCreated;
+            base.OnShutdown();
         }
 
         public void SendMessageToAudit(SocketGuildUser author, SocketGuildUser user, string action, string reason, bool sendDm = false)
@@ -97,7 +129,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
                 return;
             }
             EmbedBuilder eb = new();
-            eb.WithTitle($"{user.DisplayName} was punished.");
+            eb.WithTitle($"{user.DisplayName} was modified.");
             eb.WithCurrentTimestamp();
             eb.WithColor(Color.Orange);
             eb.AddField(Configuration.TranslationsData.AutherText, author.DisplayName);
@@ -142,6 +174,33 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
                 return;
             }
             _targetChannel.SendMessageAsync(embed: eb.Build());
+        }
+
+        public void SendMessageToAudit(SocketGuildUser author, string action, string reason, IUser target)
+        {
+            EmbedBuilder eb = new();
+            eb.WithTitle($"{target.Username} was modified.");
+            eb.WithCurrentTimestamp();
+            eb.WithColor(Color.Orange);
+            eb.WithAuthor(author);
+            eb.AddField(Configuration.TranslationsData.AutherText, $"{author.Mention} ({author.Username})");
+            eb.AddField(Configuration.TranslationsData.TargetText, $"{target.Mention} ({target.Username})");
+            eb.AddField(Configuration.TranslationsData.ReasonText, reason);
+            eb.AddField(Configuration.TranslationsData.ActionText, action);
+            if (_targetChannel is null)
+            {
+                return;
+            }
+            _targetChannel.SendMessageAsync(embed: eb.Build());
+        }
+
+        public void SendMessageToAudit(EmbedBuilder message)
+        {
+            if (_targetChannel is null)
+            {
+                return;
+            }
+            _targetChannel.SendMessageAsync(embed: message.Build());
         }
 
         public bool PunishUser(SocketGuildUser user, SocketGuildUser author, Punishment punishment, string reason, TimeSpan? duration = null, SocketGuildChannel? channel = null, bool showMessage = true, bool sendDm = true)
@@ -257,11 +316,15 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
                     }
                     break;
                 default:
-                    Log.Warning("Punishment wans't handled, probably needs to be handled by the command sending it.");
+                    Log.Warning("Punishment wasn't handled, probably needs to be handled by the command sending it.");
                     break;
             }
             if(_targetChannel != null && _targetChannel is ITextChannel staffChannel)
             {
+                if(punishment == Punishment.Kick || punishment == Punishment.Ban)
+                {
+                    return true;
+                }
                 staffChannel.SendMessageAsync(embed: eb.Build());
             }
             return true;
@@ -402,6 +465,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             return eb;
         }
 
+        public void LogActionOnUser(IUser author, IUser target, string action, string reason)
+        {
+
+        }
+
         public static string GetTranslation(Punishment p)
         {
             return p.ToString();
@@ -414,6 +482,9 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             Timeout,
             ChannelMute,
             TempBan,
+            /// <summary>
+            /// Lol why? Functions the same as <see cref="Punishment.Timeout"/>
+            /// </summary>
             Muzzle,
         }
     }

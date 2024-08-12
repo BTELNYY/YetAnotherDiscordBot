@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using YetAnotherDiscordBot.Attributes;
@@ -18,12 +19,14 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
     {
         private Dictionary<ulong, string> MessageCache = new Dictionary<ulong, string>();
 
+        private Dictionary<uint, List<RankRoleData>> RoleDataCache = new Dictionary<uint, List<RankRoleData>>();
+
         private RankSystemComponentConfiguration? _configuration;
 
         public override List<Type> ImportedCommands => new List<Type>()
         {
             typeof(Rank),
-            typeof(Setrank),
+            typeof(SetRank),
         };
 
         public RankSystemComponentConfiguration Configuration
@@ -55,6 +58,29 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
                 _configuration = new RankSystemComponentConfiguration();
                 ConfigurationService.WriteComponentConfiguration(new RankSystemComponentConfiguration(), OwnerShard.GuildID, true);
             }
+            int cachedRankRoles = 0;
+            foreach(RankRoleData data in _configuration.RankRoleConfiguration.RoleData) 
+            {
+                if (RoleDataCache.ContainsKey(data.RequiredLevel))
+                {
+                    if (RoleDataCache[data.RequiredLevel].Contains(data))
+                    {
+                        Log.Warning($"Detected duplicate rank data! RoleID: {data.RoleId}, Required Level: {data.RequiredLevel}");
+                        continue;
+                    }
+                    else
+                    {
+                        RoleDataCache[data.RequiredLevel].Add(data);
+                        cachedRankRoles++;
+                    }
+                }
+                else
+                {
+                    RoleDataCache.Add(data.RequiredLevel, new List<RankRoleData>() { data });
+                    cachedRankRoles++;
+                }
+            }
+            Log.Info($"Cached {cachedRankRoles} out of {_configuration.RankRoleConfiguration.RoleData.Count} rank roles.");
             OwnerShard.Client.MessageReceived += MessageRecieved;
             OwnerShard.Client.UserBanned += UserBanned;
             OwnerShard.Client.UserLeft += UserKicked;
@@ -130,6 +156,17 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
             return Task.CompletedTask;
         }
 
+        public DiscordUserRankData GetUserData(ulong id)
+        {
+            DiscordUserRankData discordUserRankData = OwnerShard.DiscordUserDataService.GetData<DiscordUserRankData>(id);
+            return discordUserRankData;
+        }
+
+        public void SetUserData(ulong id, DiscordUserRankData data)
+        {
+            OwnerShard.DiscordUserDataService.WriteData<DiscordUserRankData>(data, id, true);
+        }
+
         private bool ValidateMessage(SocketGuildUser user, SocketMessage msg)
         {
             if(user == null || msg == null)
@@ -160,6 +197,63 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
                 }
             }
             return true;
+        }
+
+
+        public void ValidateUser(DiscordUserRankData discordUserRankData)
+        {
+            SocketGuild guild = discordUserRankData.DiscordUserDataService.BotShard.TargetGuild;
+            SocketGuildUser user = guild.GetUser(discordUserRankData.OwnerID);
+            foreach (RankRoleData data in Configuration.RankRoleConfiguration.RoleData)
+            {
+                RoleAction action = data.RoleAction;
+                SocketRole role = guild.GetRole(data.RoleId);
+                if (discordUserRankData.Level >= data.RequiredLevel)
+                {
+                    //Proper level for role.
+                }
+                else
+                {
+                    if (action == RoleAction.Add)
+                    {
+                        action = RoleAction.Remove;
+                    }
+                    else
+                    {
+                        action = RoleAction.Add;
+                    }
+                }
+                switch (action)
+                {
+                    case RoleAction.Add:
+                        if (user.Roles.Where(x => x.Id == role.Id).Any())
+                        {
+                            continue;
+                        }
+                        user.AddRoleAsync(role);
+                        break;
+                    case RoleAction.Remove:
+                        if (!user.Roles.Where(x => x.Id == role.Id).Any())
+                        {
+                            continue;
+                        }
+                        user.RemoveRoleAsync(role);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        public void ValidateUsers()
+        {
+            List<ulong> userIds = OwnerShard.TargetGuild.Users.Select(x => x.Id).ToList();
+            Log.Info($"Validating all users! Total users to validate: {userIds.Count}");
+            foreach (var id in userIds)
+            {
+                DiscordUserRankData data = GetUserData(id);
+                ValidateUser(data);
+            }
         }
     }
 }

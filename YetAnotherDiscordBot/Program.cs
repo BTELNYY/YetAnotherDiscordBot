@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Reactive.Concurrency;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using YetAnotherDiscordBot.Configuration;
 using YetAnotherDiscordBot.Handlers;
 using YetAnotherDiscordBot.Service;
@@ -90,7 +91,35 @@ namespace YetAnotherDiscordBot
             Client.ApplicationCommandCreated += ApplicationCommandCreated;
             Client.GuildUnavailable += GuildRemoved;
             Client.SlashCommandExecuted += CommandHandler.SlashCommandExecuted;
+            //AppDomain.CurrentDomain.FirstChanceException += OnExceptionOccured;
             await Task.Delay(-1);
+        }
+
+        private void OnExceptionOccured(object? sender, FirstChanceExceptionEventArgs e)
+        {
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.WithTitle("An Exception occured!");
+            eb.WithColor(Color.Red);
+            string senderData = "null";
+            if (sender != null)
+            {
+                senderData = sender.GetType().Name;
+            }
+            eb.AddField("Object Type", $"```{senderData}```");
+            eb.AddField("Exception", $"```{e.Exception.ToString()}```");
+            eb.WithTimestamp(DateTime.Now);
+            foreach (ulong devid in GlobalConfiguration.DeveloperIDs)
+            {
+                SocketUser dev = Client.GetUser(devid);
+                try
+                {
+                    dev.SendMessageAsync(embed: eb.Build());
+                }
+                catch(Exception ex)
+                {
+                    Log.GlobalError("Failed to send exception to developer! Reason: \n" + ex.ToString());
+                }
+            }
         }
 
         private Task GuildRemoved(SocketGuild guild)

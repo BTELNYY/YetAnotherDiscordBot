@@ -75,6 +75,7 @@ namespace YetAnotherDiscordBot.Handlers
 
         public static Task SlashCommandExecuted(SocketSlashCommand command)
         {
+            //command.DeferAsync(false);
             if (command.GuildId != null && Program.GuildToThread.TryGetValue((ulong)command.GuildId, out BotShard? bot) && bot != null)
             {
                 bot.OnSlashCommandExecuted(command);

@@ -10,7 +10,7 @@ using YetAnotherDiscordBot.CommandBase;
 
 namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent.Commands
 {
-    public class Setrank : Command
+    public class SetRank : Command
     {
         public override string CommandName => "setrank";
 

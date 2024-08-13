@@ -70,10 +70,12 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent.Commands
                 xp = (double)options[2].Value;
             }
             DiscordUserRankData discordUserRankData = OwnerShard.DiscordUserDataService.GetData<DiscordUserRankData>(target.Id);
+            RankSystemComponent component = (RankSystemComponent)OwnerShard.ComponentManager.GetComponent<RankSystemComponent>(out bool success);
             discordUserRankData.XP = (float)xp;
             discordUserRankData.Level = (uint)level;
             OwnerShard.DiscordUserDataService.WriteData(discordUserRankData, target.Id, true);
             command.RespondAsync("Success", ephemeral: true);
+            component.ValidateUser(discordUserRankData);
         }
     }
 }

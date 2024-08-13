@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,11 @@ namespace YetAnotherDiscordBot.Configuration
 
         public virtual bool Save()
         {
+            if (OwnerID == 0)
+            {
+                Log.GlobalError("OwnerID is 0, this is disallowed.");
+                return false;
+            }
             return ConfigurationService.SaveComponentConfiguration(this);
         }
 
@@ -30,6 +36,11 @@ namespace YetAnotherDiscordBot.Configuration
 
         public virtual bool Delete()
         {
+            if (OwnerID == 0)
+            {
+                Log.GlobalError("OwnerID is 0, this is disallowed.");
+                return false;
+            }
             return ConfigurationService.DeleteComponentConfiguration(this);
         }
     }

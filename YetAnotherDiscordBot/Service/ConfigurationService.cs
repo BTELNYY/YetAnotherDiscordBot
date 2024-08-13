@@ -262,10 +262,12 @@ namespace YetAnotherDiscordBot.Service
                 else
                 {
                     success = true;
-                    if (doRewrite)
+                    if (doRewrite || json.OwnerID == 0)
                     {
+                        json.OwnerID = serverId;
                         WriteComponentConfiguration<T>(json, serverId, overwrite: true);
                     }
+                    json.OwnerID = serverId;
                     return json;
                 }
             }
@@ -290,6 +292,7 @@ namespace YetAnotherDiscordBot.Service
             }
             else
             {
+                model.OwnerID = serverId;
                 string json = JsonConvert.SerializeObject(model, Formatting.Indented);
                 File.WriteAllText(filePath, json);
                 return GetComponentConfiguration(model, serverId, out bool result);
@@ -312,7 +315,7 @@ namespace YetAnotherDiscordBot.Service
             }
             if(model.OwnerID == 0)
             {
-                Log.GlobalError("Given an object with a invalid OwnerID.");
+                Log.GlobalError("Given an object with a invalid OwnerID! Object Type: " + model.GetType().Name);
                 return false;
             }
             WriteComponentConfiguration(model, model.OwnerID, true);

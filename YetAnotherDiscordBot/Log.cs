@@ -182,6 +182,7 @@ namespace YetAnotherDiscordBot
             {
                 return;
             }
+            StackTrace trace = new StackTrace();
             Console.ForegroundColor = ConsoleColor.Red;
             string date = DateTime.Now.ToString("dd-MM-yyyy");
             string time = DateTime.Now.ToString("hh\\:mm\\:ss");
@@ -194,6 +195,7 @@ namespace YetAnotherDiscordBot
             sw.Write("[" + time + $" ERROR]: " + msg + "\n");
             sw.Close();
             Console.ResetColor();
+            GlobalDebug("Error stack trace: \n" + trace.ToString());
         }
 
         public static void GlobalFatal(string msg)

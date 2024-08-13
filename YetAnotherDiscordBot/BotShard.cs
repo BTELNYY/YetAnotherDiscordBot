@@ -170,6 +170,12 @@ namespace YetAnotherDiscordBot
             catch (Exception ex)
             {
                 Log.Error("Executing Command " + command.CommandName + " threw an exception: \n" + ex.ToString());
+                EmbedBuilder builder = new EmbedBuilder();
+                builder.WithTitle("Error");
+                builder.WithCurrentTimestamp();
+                builder.Description = "Please report this to the developer. \n```" + ex.ToString() + "```";
+                builder.Color = Color.Red;
+                command.RespondAsync(embed: builder.Build(), ephemeral: true);
                 return;
             }
             return;

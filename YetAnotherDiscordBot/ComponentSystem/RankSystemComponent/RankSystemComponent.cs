@@ -3,6 +3,7 @@ using Discord.Rest;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
@@ -19,7 +20,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
     {
         private Dictionary<ulong, string> MessageCache = new Dictionary<ulong, string>();
 
-        private Dictionary<uint, List<RankRoleData>> RoleDataCache = new Dictionary<uint, List<RankRoleData>>();
+        private Dictionary<uint, List<RankRoleData>> _roleDataCache = new Dictionary<uint, List<RankRoleData>>();
 
         private RankSystemComponentConfiguration? _configuration;
 
@@ -27,6 +28,9 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
         {
             typeof(Rank),
             typeof(SetRank),
+            typeof(AddRankRole),
+            typeof(RemoveRankRole),
+            typeof(ListRankRoles),
         };
 
         public RankSystemComponentConfiguration Configuration
@@ -58,29 +62,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
                 _configuration = new RankSystemComponentConfiguration();
                 ConfigurationService.WriteComponentConfiguration(new RankSystemComponentConfiguration(), OwnerShard.GuildID, true);
             }
-            int cachedRankRoles = 0;
-            foreach(RankRoleData data in _configuration.RankRoleConfiguration.RoleData) 
-            {
-                if (RoleDataCache.ContainsKey(data.RequiredLevel))
-                {
-                    if (RoleDataCache[data.RequiredLevel].Contains(data))
-                    {
-                        Log.Warning($"Detected duplicate rank data! RoleID: {data.RoleId}, Required Level: {data.RequiredLevel}");
-                        continue;
-                    }
-                    else
-                    {
-                        RoleDataCache[data.RequiredLevel].Add(data);
-                        cachedRankRoles++;
-                    }
-                }
-                else
-                {
-                    RoleDataCache.Add(data.RequiredLevel, new List<RankRoleData>() { data });
-                    cachedRankRoles++;
-                }
-            }
-            Log.Info($"Cached {cachedRankRoles} out of {_configuration.RankRoleConfiguration.RoleData.Count} rank roles.");
+            CacheRankRoles();
             OwnerShard.Client.MessageReceived += MessageRecieved;
             OwnerShard.Client.UserBanned += UserBanned;
             OwnerShard.Client.UserLeft += UserKicked;
@@ -152,37 +134,28 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
                     discordUserRankData.Level++;
                 }
                 OwnerShard.DiscordUserDataService.WriteData(discordUserRankData, msg.Author.Id);
+                ValidateUser(GetUserData(msg.Author.Id));
             }
             return Task.CompletedTask;
         }
 
-        public DiscordUserRankData GetUserData(ulong id)
-        {
-            DiscordUserRankData discordUserRankData = OwnerShard.DiscordUserDataService.GetData<DiscordUserRankData>(id);
-            return discordUserRankData;
-        }
-
-        public void SetUserData(ulong id, DiscordUserRankData data)
-        {
-            OwnerShard.DiscordUserDataService.WriteData<DiscordUserRankData>(data, id, true);
-        }
 
         private bool ValidateMessage(SocketGuildUser user, SocketMessage msg)
         {
-            if(user == null || msg == null)
+            if (user == null || msg == null)
             {
                 Log.Error("User or Message is null in message validator!");
                 return false;
             }
-            if(msg.Content.Length <= Configuration.MinimumTextLength)
+            if (msg.Content.Length <= Configuration.MinimumTextLength)
             {
                 return false;
             }
-            if(!msg.Content.Contains(' ') && Configuration.MustHaveSpaces)
+            if (!msg.Content.Contains(' ') && Configuration.MustHaveSpaces)
             {
                 return false;
             }
-            if(MessageCache.ContainsKey(user.Id))
+            if (MessageCache.ContainsKey(user.Id))
             {
                 if (MessageCache[user.Id] == msg.Content)
                 {
@@ -199,6 +172,43 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
             return true;
         }
 
+        private void CacheRankRoles()
+        {
+            int cachedRankRoles = 0;
+            foreach (RankRoleData data in Configuration.RankRoleConfiguration.RoleData)
+            {
+                if (_roleDataCache.ContainsKey(data.RequiredLevel))
+                {
+                    if (_roleDataCache[data.RequiredLevel].Contains(data))
+                    {
+                        Log.Warning($"Detected duplicate rank data! RoleID: {data.RoleId}, Required Level: {data.RequiredLevel}");
+                        continue;
+                    }
+                    else
+                    {
+                        _roleDataCache[data.RequiredLevel].Add(data);
+                        cachedRankRoles++;
+                    }
+                }
+                else
+                {
+                    _roleDataCache.Add(data.RequiredLevel, new List<RankRoleData>() { data });
+                    cachedRankRoles++;
+                }
+            }
+            Log.Info($"Cached {cachedRankRoles} out of {Configuration.RankRoleConfiguration.RoleData.Count} rank roles.");
+        }
+
+        public DiscordUserRankData GetUserData(ulong id)
+        {
+            DiscordUserRankData discordUserRankData = OwnerShard.DiscordUserDataService.GetData<DiscordUserRankData>(id);
+            return discordUserRankData;
+        }
+
+        public void SetUserData(ulong id, DiscordUserRankData data)
+        {
+            OwnerShard.DiscordUserDataService.WriteData<DiscordUserRankData>(data, id, true);
+        }
 
         public void ValidateUser(DiscordUserRankData discordUserRankData)
         {
@@ -247,13 +257,91 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
 
         public void ValidateUsers()
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
             List<ulong> userIds = OwnerShard.TargetGuild.Users.Select(x => x.Id).ToList();
             Log.Info($"Validating all users! Total users to validate: {userIds.Count}");
+            int totalIds = userIds.Count;
+            int validated = 0;
             foreach (var id in userIds)
             {
-                DiscordUserRankData data = GetUserData(id);
-                ValidateUser(data);
+                try
+                {
+                    DiscordUserRankData data = GetUserData(id);
+                    ValidateUser(data);
+                    validated++;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Validation failed! User: {id}, Error: \n {ex}");
+                }
             }
+            stopwatch.Stop();
+            Log.Info($"Validation completed, {validated} out of {totalIds} succeeded. Took: {stopwatch.ElapsedMilliseconds}ms");
+        }
+
+        public bool AddRankRole(uint level, ulong roleId, RoleAction roleAction, out string failureReason)
+        {
+            SocketRole role = OwnerShard.TargetGuild.GetRole(roleId);
+            if (role == null)
+            {
+                failureReason = $"Role with ID {roleId} not found.";
+                return false;
+            }
+            if (_roleDataCache.ContainsKey(level) && _roleDataCache[level].Where(x => x.RoleId == roleId).Any())
+            {
+                failureReason = $"Role '{role.Name}' is already registered to level {level}.";
+                return false;
+            }
+            RankRoleData data = new RankRoleData();
+            data.RoleAction = roleAction;
+            data.RoleId = roleId;
+            data.RequiredLevel = level;
+            if (Configuration.RankRoleConfiguration.RoleData.Contains(data))
+            {
+                failureReason = $"Role with ID {data.RoleId}, at level {data.RequiredLevel} with action {data.RoleAction} is already registered.";
+                return false;
+            }
+            Configuration.RankRoleConfiguration.RoleData.Add(data);
+            Configuration.Save();
+            CacheRankRoles();
+            failureReason = string.Empty;
+            return true;
+        }
+
+        public bool RemoveRankRole(uint level, ulong roleId, RoleAction roleAction, out string failureReason)
+        {
+            SocketRole role = OwnerShard.TargetGuild.GetRole(roleId);
+            if (role == null)
+            {
+                failureReason = $"Role with ID {roleId} not found.";
+                return false;
+            }
+            if (_roleDataCache.ContainsKey(level) && !_roleDataCache[level].Where(x => x.RoleId == roleId).Any())
+            {
+                failureReason = $"Role '{role.Name}' is not registered to level {level}.";
+                return false;
+            }
+            bool hasRemoved = false;
+            RankRoleData target = new RankRoleData();
+            foreach(RankRoleData data in Configuration.RankRoleConfiguration.RoleData)
+            {
+                if(data.RoleAction != roleAction || data.RequiredLevel != level || data.RoleId != roleId)
+                {
+                    continue;
+                }
+                hasRemoved = true;
+                target = data;
+            }
+            if (!hasRemoved)
+            {
+                failureReason = $"Role '{role.Name}' wasn't found in the list of registrated rank roles.";
+                return false;
+            }
+            Configuration.RankRoleConfiguration.RoleData.Remove(target);
+            Configuration.Save();
+            CacheRankRoles();
+            failureReason = string.Empty;
+            return true;
         }
     }
 }

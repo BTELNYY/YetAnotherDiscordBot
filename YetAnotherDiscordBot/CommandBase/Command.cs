@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YetAnotherDiscordBot.ComponentSystem;
+using System.Net.Mime;
 
 namespace YetAnotherDiscordBot.CommandBase
 {
@@ -13,7 +14,35 @@ namespace YetAnotherDiscordBot.CommandBase
     {
         public virtual string CommandName { get; } = "commandname";
         public virtual string Description { get; } = "Command Description";
-        public virtual bool IsDMEnabled { get; } = false;
+
+        public bool IsDMEnabled
+        {
+            get
+            {
+                return ContentTypes.Contains(InteractionContextType.BotDm);
+            }
+        }
+
+        public bool IsPrivateMessageEnabled
+        {
+            get
+            {
+                return ContentTypes.Contains(InteractionContextType.PrivateChannel);
+            }
+        }
+
+        public bool IsGuildEnabled
+        {
+            get
+            {
+                return ContentTypes.Contains(InteractionContextType.Guild);
+            }
+        }
+
+        public virtual InteractionContextType[] ContentTypes { get; set; } = new List<InteractionContextType>() 
+        {
+            InteractionContextType.Guild,
+        }.ToArray();
         public virtual GuildPermission RequiredPermission { get; } = GuildPermission.UseApplicationCommands;
         public virtual List<CommandOption> Options { get; set; } = new List<CommandOption>();
         public virtual bool IsDefaultEnabled { get; } = true;

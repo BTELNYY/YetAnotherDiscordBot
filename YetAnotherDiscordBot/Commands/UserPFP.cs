@@ -7,9 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using YetAnotherDiscordBot.CommandBase;
+using YetAnotherDiscordBot.Attributes;
 
 namespace YetAnotherDiscordBot.Commands
 {
+    [GlobalCommand]
     public class UserPFP : Command
     {
         public override string CommandName => "userpfp";

@@ -6,11 +6,13 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using YetAnotherDiscordBot.Attributes;
 using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.ComponentSystem;
 
 namespace YetAnotherDiscordBot.Commands
 {
+    [GlobalCommand]
     public class RemoveComponent : Command
     {
         public override string CommandName => "removecomponent";

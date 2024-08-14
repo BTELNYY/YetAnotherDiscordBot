@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YetAnotherDiscordBot.Attributes;
 using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.Service;
 
 namespace YetAnotherDiscordBot.Commands
 {
+    [GlobalCommand]
     public class DumpDMs : Command
     {
         public override string CommandName => "dumpdms";

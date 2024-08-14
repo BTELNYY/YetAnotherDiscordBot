@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YetAnotherDiscordBot.Attributes;
 using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.ComponentSystem;
 
 namespace YetAnotherDiscordBot.Commands
 {
+    [GlobalCommand]
     public class AddComponent : Command
     {
         public override string CommandName => "addcomponent";

@@ -8,9 +8,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using YetAnotherDiscordBot.CommandBase;
+using YetAnotherDiscordBot.Attributes;
 
 namespace YetAnotherDiscordBot.Commands
 {
+    [GlobalCommand]
     public class ActiveComponents : Command
     {
         public override string CommandName => "activecomponents";

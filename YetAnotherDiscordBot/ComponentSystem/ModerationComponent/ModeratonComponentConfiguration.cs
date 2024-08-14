@@ -11,15 +11,15 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
     {
         public override string Filename => "ModerationConfig.json";
 
-        public ulong ChannelID = 0;
+        public ulong ChannelID { get; set; } = 0;
 
-        public ulong ServerID = 0;
+        public ulong ServerID { get; set; } = 0;
 
         public string LockdownWarningVideoURL = "https://cdn.discordapp.com/attachments/887518399939350538/941157854734323712/SCP_SL_Light_Containment_Zone_Decontamination_30_Seconds.mp4";
 
-        public int LockdownDelay = 30;
+        public int LockdownDelay { get; set; } = 30;
 
-        public Translations TranslationsData = new();
+        public Translations TranslationsData { get; set; } = new();
 
         public struct Translations
         {
@@ -59,12 +59,21 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 
                 public string ChannelMute = "Channel Mute";
 
-                public string Muzzle = "Muzzled";
-
                 public ActionTranslations() { }
             }
 
             public Translations() { }
+        }
+
+        public struct StickiedMessageData
+        {
+            public string Message = string.Empty;
+
+            public ulong ChannelID = 0;
+
+            public ulong LastMessageID = 0;
+
+            public StickiedMessageData() { }
         }
     }
 }

@@ -58,11 +58,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
 
     public class RankXPRandomizerConfiguration
     {
-        public float XPMinimum = 0.25f;
+        public float XPMinimum { get; set; } = 0.25f;
 
-        public float XPMaximum = 5.0f;
+        public float XPMaximum { get; set; } = 5.0f;
 
-        public int PercentChancePerMessage = 35;
+        public int PercentChancePerMessage { get; set; } = 35;
 
         public float Randomize()
         {
@@ -83,11 +83,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
 
     public class RankAlgorithmConfiguration
     {
-        public float MinimumPossibleXP = 50;
+        public float MinimumPossibleXP { get; set; } = 50;
 
-        public float PainMultiplier = 5;
+        public float PainMultiplier { get; set; } = 5;
 
-        public uint Exponent = 2;
+        public uint Exponent { get; set; } = 2;
 
         public float FindXP(uint level)
         {

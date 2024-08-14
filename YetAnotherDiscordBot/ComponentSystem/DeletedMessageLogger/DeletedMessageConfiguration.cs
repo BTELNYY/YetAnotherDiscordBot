@@ -11,8 +11,8 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
     {
         public override string Filename => "DeletedMessageConfig.json";
 
-        public ulong ChannelID = 0;
+        public ulong ChannelID { get; set; } = 0;
 
-        public ulong GuildID = 0;
+        public ulong GuildID { get; set; } = 0;
     }
 }

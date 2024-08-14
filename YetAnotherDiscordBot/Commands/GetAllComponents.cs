@@ -11,7 +11,8 @@ using YetAnotherDiscordBot.CommandBase;
 
 namespace YetAnotherDiscordBot.Commands
 {
-    internal class GetAllComponents : Command
+    [GlobalCommand]
+    public class GetAllComponents : Command
     {
         public override string CommandName => "getallcomponents";
 

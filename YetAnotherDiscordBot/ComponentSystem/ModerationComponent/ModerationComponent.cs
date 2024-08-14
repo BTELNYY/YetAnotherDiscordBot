@@ -274,21 +274,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
                         }
                     }
                     break;
-                case Punishment.Muzzle:
-                    if (duration == null)
-                    {
-                        Log.Warning("Can't timeout with null duration.");
-                        return false;
-                    }
-                    else
-                    {
-                        user.SetTimeOutAsync((TimeSpan)duration);
-                        if (textChannel != null && showMessage)
-                        {
-                            textChannel.SendMessageAsync(embed: eb.Build());
-                        }
-                    }
-                    break;
                 case Punishment.ChannelMute:
                     if(textChannel == null)
                     {
@@ -483,10 +468,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             Timeout,
             ChannelMute,
             TempBan,
-            /// <summary>
-            /// Lol why? Functions the same as <see cref="Punishment.Timeout"/>
-            /// </summary>
-            Muzzle,
         }
     }
 }

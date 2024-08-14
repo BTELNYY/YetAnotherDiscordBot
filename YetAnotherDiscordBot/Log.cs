@@ -89,6 +89,12 @@ namespace YetAnotherDiscordBot
 
         public void Write(LogLevel level, string message)
         {
+#if !DEBUG
+            if (level == LogLevel.Debug)
+            {
+                return;
+            }
+#endif
             StackFrame stackFrame = new StackFrame(2);
             string time = DateTime.Now.ToString("hh\\:mm\\:ss");
             string file = FilePath + FileName;
@@ -113,6 +119,12 @@ namespace YetAnotherDiscordBot
 
         public static void WriteConsole(LogLevel level, string message, ulong id = 0)
         {
+#if !DEBUG
+            if (level == LogLevel.Debug)
+            {
+                return;
+            }
+#endif
             ConsoleColor matchedColor = ConsoleColor.White;
             switch (level)
             {
@@ -260,6 +272,9 @@ namespace YetAnotherDiscordBot
 
         public static void GlobalDebug(string msg)
         {
+#if !DEBUG
+return;
+#endif
             if (!InternalConfig.EnableLogging)
             {
                 return;

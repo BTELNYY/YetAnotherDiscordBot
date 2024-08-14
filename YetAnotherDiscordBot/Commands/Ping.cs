@@ -6,9 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YetAnotherDiscordBot.CommandBase;
+using YetAnotherDiscordBot.Attributes;
 
 namespace YetAnotherDiscordBot.Commands
 {
+    [GlobalCommand]
     public class Ping : Command
     {
         public override string CommandName => "ping";

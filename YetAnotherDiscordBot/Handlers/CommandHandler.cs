@@ -7,8 +7,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using YetAnotherDiscordBot.Attributes;
 using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.Commands;
 
@@ -22,17 +24,33 @@ namespace YetAnotherDiscordBot.Handlers
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
             Log.GlobalInfo("Registering Global Commands...");
-            BuildCommand(new Ping());
-            BuildCommand(new GetAllComponents());
-            BuildCommand(new DestroyAppCommands());
-            BuildCommand(new UserPFP());
-            BuildCommand(new DumpDMs());
-            BuildCommand(new RestartShard());
-            BuildCommand(new AddComponent());
-            BuildCommand(new ActiveComponents());
-            BuildCommand(new RemoveComponent());
+            ImportGlobalCommands(Assembly.GetExecutingAssembly());
             stopwatch.Stop();
             Log.GlobalInfo("Done! Took {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
+        }
+
+        public static void ImportGlobalCommands(Assembly assembly)
+        {
+            Type[] commands = assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(Command)) && x.GetCustomAttribute<GlobalCommand>() != null).ToArray();
+            foreach (Type command in commands)
+            {
+                BuildCommand(command);
+            }
+        }
+
+        public static void BuildCommand(Type type)
+        {
+            if(!(type.IsSubclassOf(typeof(Command)) && type.GetCustomAttribute<GlobalCommand>() != null))
+            {
+                throw new InvalidOperationException($"Supplied type {type.Name} is invalid and cannot be loaded as a command.");
+            }
+            object? obj = Activator.CreateInstance(type);
+            if(obj == null || obj is not Command)
+            {
+                throw new InvalidOperationException($"Supplied type {type.Name} is invalid and cannot be loaded as a command.");
+            }
+            Command command = (Command)obj;
+            BuildCommand(command);
         }
 
         public static void BuildCommand(Command command)
@@ -41,7 +59,7 @@ namespace YetAnotherDiscordBot.Handlers
             SlashCommandBuilder scb = new();
             scb.WithName(command.CommandName);
             scb.WithDescription(command.Description);
-            scb.WithDMPermission(command.IsDMEnabled);
+            scb.WithContextTypes(command.ContentTypes);
             command.BuildOptions();
             foreach (CommandOption cop in command.Options)
             {

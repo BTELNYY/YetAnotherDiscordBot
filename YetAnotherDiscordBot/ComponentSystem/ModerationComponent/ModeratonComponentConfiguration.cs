@@ -17,7 +17,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 
         public string LockdownWarningVideoURL = "https://cdn.discordapp.com/attachments/887518399939350538/941157854734323712/SCP_SL_Light_Containment_Zone_Decontamination_30_Seconds.mp4";
 
-        public int LockdownDelay { get; set; } = 30;
+        public uint LockdownDelay { get; set; } = 30;
 
         public Translations TranslationsData { get; set; } = new();
 
@@ -63,17 +63,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             }
 
             public Translations() { }
-        }
-
-        public struct StickiedMessageData
-        {
-            public string Message = string.Empty;
-
-            public ulong ChannelID = 0;
-
-            public ulong LastMessageID = 0;
-
-            public StickiedMessageData() { }
         }
     }
 }

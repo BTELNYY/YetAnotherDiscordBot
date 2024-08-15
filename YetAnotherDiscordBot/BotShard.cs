@@ -186,7 +186,7 @@ namespace YetAnotherDiscordBot
             SlashCommandBuilder scb = new();
             scb.WithName(command.CommandName);
             scb.WithDescription(command.Description);
-            scb.WithDMPermission(command.IsDMEnabled);
+            scb.WithContextTypes(command.ContentTypes);
             command.BuildOptions();
             foreach (CommandOption cop in command.Options)
             {

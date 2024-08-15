@@ -34,11 +34,11 @@ namespace YetAnotherDiscordBot.Handlers
             Type[] commands = assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(Command)) && x.GetCustomAttribute<GlobalCommand>() != null).ToArray();
             foreach (Type command in commands)
             {
-                BuildCommand(command);
+                BuildCommand(command, true);
             }
         }
 
-        public static void BuildCommand(Type type)
+        public static void BuildCommand(Type type, bool validateAsGlobalCommand = false)
         {
             if(!(type.IsSubclassOf(typeof(Command)) && type.GetCustomAttribute<GlobalCommand>() != null))
             {
@@ -50,11 +50,19 @@ namespace YetAnotherDiscordBot.Handlers
                 throw new InvalidOperationException($"Supplied type {type.Name} is invalid and cannot be loaded as a command.");
             }
             Command command = (Command)obj;
+            if (validateAsGlobalCommand && command.RequiredComponents.Any())
+            {
+                throw new ArgumentException("Tried validating command as Global command but the command has required components, This is not allowed.", "command");
+            }
             BuildCommand(command);
         }
 
-        public static void BuildCommand(Command command)
+        public static void BuildCommand(Command command, bool validateAsGlobalCommand = false)
         {
+            if (validateAsGlobalCommand && command.RequiredComponents.Any())
+            {
+                throw new ArgumentException("Tried validating command as Global command but the command has required components, This is not allowed.", "command");
+            }
             DiscordSocketClient client = Program.Client;
             SlashCommandBuilder scb = new();
             scb.WithName(command.CommandName);

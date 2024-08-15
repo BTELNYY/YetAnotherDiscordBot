@@ -7,6 +7,10 @@ using YetAnotherDiscordBot.Attributes;
 using System.Runtime.CompilerServices;
 using System.ComponentModel.Design;
 using YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Xml;
+using System.Threading.Channels;
 
 namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 {
@@ -29,8 +33,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
         public ModeratonComponentConfiguration Configuration { get; private set; } = new ModeratonComponentConfiguration();
 
         private SocketGuild? _targetGuild;
+        
         private bool _usingAlternativeGuild = false;
-        private static Dictionary<ulong, List<Overwrite>> _channelLocks = new Dictionary<ulong, List<Overwrite>>();
+        
+        private Dictionary<ulong, List<Overwrite>> _channelLocks = new Dictionary<ulong, List<Overwrite>>();
+
         public bool UsingAlternativeGuild
         {
             get
@@ -91,6 +98,8 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             return base.Start();
         }
 
+        
+
         private Task AuditLogCreated(SocketAuditLogEntry entry, SocketGuild guild)
         {
             if(guild.Id != OwnerShard.GuildID)
@@ -102,7 +111,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             {
                 case ActionType.Ban:
                     SocketBanAuditLogData banData = (SocketBanAuditLogData)entry.Data;
-                    
                     SendMessageToAudit(user, GetTranslation(Punishment.Ban), entry.Reason, banData.Target.GetOrDownloadAsync().Result);
                     break;
                 case ActionType.Kick:
@@ -418,7 +426,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             {
                 return;
             }
-            await Task.Delay(Configuration.LockdownDelay * 1000);
+            await Task.Delay((int)Configuration.LockdownDelay * 1000);
             var perms = new OverwritePermissions();
             perms = perms.Modify(sendMessages: PermValue.Deny, sendMessagesInThreads: PermValue.Deny, createPrivateThreads: PermValue.Deny, createPublicThreads: PermValue.Deny, addReactions: PermValue.Deny);
             var role = OwnerShard.TargetGuild.EveryoneRole;

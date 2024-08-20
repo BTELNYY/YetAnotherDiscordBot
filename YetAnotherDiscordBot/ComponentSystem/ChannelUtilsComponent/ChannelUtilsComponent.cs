@@ -180,14 +180,17 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent
             return true;
         }
 
-        public void UpdateStickyMessageCache(ulong id, ChannelUtilsComponentConfiguration.StickyMessageData data)
+        public void UpdateStickyMessageCache(ulong id, ChannelUtilsComponentConfiguration.StickyMessageData data, bool invalidateCache = true)
         {
             if (!_stickedMessageCache.ContainsKey(id))
             {
                 return;
             }
             _stickedMessageCache[id] = data;
-            InvalidateStickyMessageCache(id);
+            if (invalidateCache)
+            {
+                InvalidateStickyMessageCache(id);
+            }
         }
 
         public void SaveStickyMessageData()
@@ -267,7 +270,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent
                         message.DeleteAsync();
                         RestUserMessage newMessage = textChannel.SendMessageAsync(embed: GetStickyMessageEmbed(data.Message)).Result;
                         data.LastMessageID = newMessage.Id;
-                        UpdateStickyMessageCache(textChannel.Id, data);
+                        UpdateStickyMessageCache(textChannel.Id, data, false);
                     }
                     SaveStickyMessageData();
                     if (_terminating)

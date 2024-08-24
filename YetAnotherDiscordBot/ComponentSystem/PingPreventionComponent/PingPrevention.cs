@@ -31,31 +31,13 @@ namespace YetAnotherDiscordBot.ComponentSystem.PingPreventionComponent
             typeof(ModerationComponent.ModerationComponent)
         };
 
-        private PingPreventionConfiguration? _config;
+        public override Type ConfigurationClass => typeof(PingPreventionConfiguration);
 
-        public PingPreventionConfiguration Configuration
+        public override PingPreventionConfiguration Configuration
         {
             get
             {
-                if(_config == null)
-                {
-                    _config = ConfigurationService.GetComponentConfiguration<PingPreventionConfiguration>(OwnerShard.GuildID, out bool succes, true);
-                    if(!succes)
-                    {
-                        Log.Error("Failed to get PingPrevnetionConfiguration!");
-                        _config = new PingPreventionConfiguration();
-                    }
-                }
-                return _config;
-            }
-            set
-            {
-                if(value == null)
-                {
-                    Log.Error("Can't set null value for configuration!");
-                    return;
-                }
-                _config = ConfigurationService.WriteComponentConfiguration(value, OwnerShard.GuildID, true);
+                return (PingPreventionConfiguration)base.Configuration;
             }
         }
 
@@ -75,18 +57,12 @@ namespace YetAnotherDiscordBot.ComponentSystem.PingPreventionComponent
                     }
                 }
                 return _moderationComponent;
-            } 
+            }
         }
 
         public override void OnValidated()
         {
             base.OnValidated();
-            _config = ConfigurationService.GetComponentConfiguration<PingPreventionConfiguration>(OwnerShard.GuildID, out bool succes, true);
-            if (!succes)
-            {
-                Log.Error("Failed to get PingPrevnetionConfiguration!");
-                Configuration = new PingPreventionConfiguration();
-            }
             OwnerShard.Client.MessageReceived += CheckMessage;
             _moderationComponent = OwnerShard.ComponentManager.GetComponent<ModerationComponent.ModerationComponent>(out bool success);
             if (!success)

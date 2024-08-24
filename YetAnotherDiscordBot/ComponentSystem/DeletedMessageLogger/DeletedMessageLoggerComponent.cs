@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using YetAnotherDiscordBot.Service;
 using YetAnotherDiscordBot.Attributes;
+using YetAnotherDiscordBot.Configuration;
 
 namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
 {
@@ -12,7 +13,13 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
 
         public override string Description => "Component to intercept deleted messages and display them to a channel.";
 
-        public DeletedMessageConfiguration Configuration { get; private set; } = new DeletedMessageConfiguration();
+        public override DeletedMessageConfiguration Configuration
+        {
+            get
+            {
+                return new DeletedMessageConfiguration();
+            }
+        }
 
         private SocketTextChannel? _textChannel;
 
@@ -51,12 +58,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.DeletedMessageLogger
         public override bool Start()
         {
             base.Start();
-            Configuration = ConfigurationService.GetComponentConfiguration(new DeletedMessageConfiguration(), OwnerShard.GuildID, out bool success, true);
-            if (!success)
-            {
-                Log.Warning($"Failed to get configuration for {nameof(DeletedMessageLoggerComponent)}");
-                return success;
-            }
             if(Configuration.GuildID != 0)
             {
                 SocketGuild? guild = OwnerShard.Client.GetGuild(Configuration.GuildID);

@@ -192,6 +192,7 @@ namespace YetAnotherDiscordBot
             {
                 scb.AddOption(cop.Name, cop.OptionType, cop.Description, cop.Required);
             }
+            
             scb.DefaultMemberPermissions = command.RequiredPermission;
             scb.IsDefaultPermission = command.IsDefaultEnabled;
             command.BuildAliases();

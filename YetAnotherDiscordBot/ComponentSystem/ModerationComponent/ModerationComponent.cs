@@ -11,6 +11,8 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Xml;
 using System.Threading.Channels;
+using YetAnotherDiscordBot.ComponentSystem.RankSystemComponent;
+using YetAnotherDiscordBot.Configuration;
 
 namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 {
@@ -30,7 +32,15 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             typeof(ServerLockdown),
         };
 
-        public ModeratonComponentConfiguration Configuration { get; private set; } = new ModeratonComponentConfiguration();
+        public override Type ConfigurationClass => typeof(ModeratonComponentConfiguration);
+
+        public override ModeratonComponentConfiguration Configuration
+        {
+            get
+            {
+                return (ModeratonComponentConfiguration)base.Configuration;
+            }
+        }
 
         private SocketGuild? _targetGuild;
         
@@ -50,12 +60,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
 
         public override bool Start()
         {
-            Configuration = ConfigurationService.GetComponentConfiguration(Configuration, OwnerShard.GuildID, out bool success, true);
-            if (!success)
-            {
-                Log.Error("Failure to start ModerationComponent, fetching config failed.");
-                return success;
-            }
             if(Configuration.ServerID != 0)
             {
                 SocketGuild guild = OwnerShard.Client.GetGuild(Configuration.ServerID);

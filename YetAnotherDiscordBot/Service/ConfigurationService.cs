@@ -10,11 +10,11 @@ namespace YetAnotherDiscordBot.Service
 
         //Global Config
         public const string GlobalConfigFolder = ConfigFolder + "global/";
+        public const string GlobalAssemblyFolder = GlobalConfigFolder + "assemblies/";
         public const string GlobalConfigFile = ConfigFolder + "config.json";
 
         //Server Config
         public const string ServerConfigFolder = ConfigFolder + "servers/";
-
         public const string CacheFolder = ConfigFolder + "cache/";
 
         public static void Start()
@@ -26,6 +26,10 @@ namespace YetAnotherDiscordBot.Service
             if (!Directory.Exists(GlobalConfigFolder))
             {
                 Directory.CreateDirectory(GlobalConfigFolder);
+            }
+            if (!Directory.Exists(GlobalAssemblyFolder))
+            {
+                Directory.CreateDirectory(GlobalAssemblyFolder);
             }
             if (!Directory.Exists(ServerConfigFolder))
             {
@@ -220,10 +224,10 @@ namespace YetAnotherDiscordBot.Service
             }
         }
 
-
         public static T GetComponentConfiguration<T>(T model, ulong serverId, out bool success, bool writeFile = false, bool doRewrite = true) where T : ComponentConfiguration
         {
             string filePath = ServerConfigFolder + serverId.ToString() + "/" + model.Filename;
+            Type t = model.GetType();
             if (!File.Exists(filePath))
             {
                 if (writeFile)
@@ -234,7 +238,7 @@ namespace YetAnotherDiscordBot.Service
                 else
                 {
                     success = false;
-                    T? result = (T?)Activator.CreateInstance(typeof(T));
+                    T? result = (T?)Activator.CreateInstance(t);
                     result ??= (T)new ComponentConfiguration();
                     result.OwnerID = serverId;
                     return result;
@@ -243,11 +247,11 @@ namespace YetAnotherDiscordBot.Service
             else
             {
                 string data = File.ReadAllText(filePath);
-                T? json = JsonConvert.DeserializeObject<T>(data);
-                if(json == null)
+                T? json = JsonConvert.DeserializeObject(data, t) as T;
+                if (json == null)
                 {
                     success = false;
-                    T? result = (T?)Activator.CreateInstance(typeof(T));
+                    T? result = (T?)Activator.CreateInstance(t);
                     if (result == null)
                     {
                         if (doRewrite)

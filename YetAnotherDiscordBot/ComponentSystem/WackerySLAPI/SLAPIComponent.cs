@@ -43,35 +43,15 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
             typeof(Leaderboard),
         };
 
-        private SLAPIComponentConfiguration? _configuration;
+        public override Type ConfigurationClass => typeof(SLAPIComponentConfiguration);
 
-        public SLAPIComponentConfiguration Configuration
+        public override SLAPIComponentConfiguration Configuration
         {
             get
             {
-                if(_configuration == null)
-                {
-                    _configuration = new SLAPIComponentConfiguration();
-                    _configuration = ConfigurationService.GetComponentConfiguration<SLAPIComponentConfiguration>(_configuration, OwnerShard.GuildID, out bool success);
-                    if(!success)
-                    {
-                        ConfigurationService.WriteComponentConfiguration<SLAPIComponentConfiguration>(_configuration, OwnerShard.GuildID);
-                    }
-                }
-                return _configuration;
+                return (SLAPIComponentConfiguration)base.Configuration;
             }
-            set
-            {
-                if(value == null)
-                {
-                    ConfigurationService.WriteComponentConfiguration<SLAPIComponentConfiguration>(new SLAPIComponentConfiguration(), OwnerShard.GuildID, true);
-                }
-                else
-                {
-                    ConfigurationService.WriteComponentConfiguration<SLAPIComponentConfiguration>(value, OwnerShard.GuildID, true);
-                }
-            }
-        } 
+        }
 
         private void UpdateThreadMethod()
         {

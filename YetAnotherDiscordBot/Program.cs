@@ -21,6 +21,8 @@ namespace YetAnotherDiscordBot
 
         public static Dictionary<BotShard, Thread> BotToThread = new Dictionary<BotShard, Thread>();
 
+        public static List<Assembly> LoadedAssemblies = new List<Assembly>();
+
         public static GlobalConfiguration GlobalConfiguration
         {
             get
@@ -76,15 +78,15 @@ namespace YetAnotherDiscordBot
             string token = "";
             token = ConfigurationService.GlobalConfiguration.Token;
             Client = new(config);
+            Log.GlobalInfo("Starting Services...");
+            ConfigurationService.Start();
+            ShutdownService.Start();
+            ShutdownService.OnShutdownSignal += OnShutdown;
             Log.GlobalInfo("Connecting to discord...");
             await Client.LoginAsync(TokenType.Bot, token);
             await Client.StartAsync();
             await Client.SetStatusAsync(ConfigurationService.GlobalConfiguration.BotStatus);
             await Client.SetCustomStatusAsync(ConfigurationService.GlobalConfiguration.BotStatusMessage);
-            Log.GlobalInfo("Starting Services...");
-            ConfigurationService.Start();
-            ShutdownService.Start();
-            ShutdownService.OnShutdownSignal += OnShutdown;
             Log.GlobalInfo("Register Events...");
             Client.Ready += OnReady;
             Client.Log += LogEvent;

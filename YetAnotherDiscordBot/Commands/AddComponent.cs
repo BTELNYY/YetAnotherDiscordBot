@@ -51,6 +51,11 @@ namespace YetAnotherDiscordBot.Commands
                 command.RespondAsync("Can't find the component you mean!", ephemeral: true);
                 return;
             }
+            if (OwnerShard.ServerConfiguration.AddedComponents.Contains(componentName))
+            {
+                command.RespondAsync("That component is already added.", ephemeral: true);
+                return;
+            }
             OwnerShard.ServerConfiguration.AddedComponents.Add(componentName);
             OwnerShard.SaveServerConfiguration();
             command.RespondAsync("Succes, restart the shard to apply changes.", ephemeral: true);

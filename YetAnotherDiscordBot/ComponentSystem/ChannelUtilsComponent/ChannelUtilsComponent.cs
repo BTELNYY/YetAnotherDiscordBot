@@ -35,32 +35,19 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent
             typeof(RemoveStickyMessage),
         };
 
-        private ChannelUtilsComponentConfiguration? _configuration;
+        public override Type ConfigurationClass => typeof(ChannelUtilsComponentConfiguration);
 
-        public ChannelUtilsComponentConfiguration Configuration
+        public override ChannelUtilsComponentConfiguration Configuration
         {
             get
             {
-                if(_configuration == null)
-                {
-                    _configuration = ConfigurationService.GetComponentConfiguration<ChannelUtilsComponentConfiguration>(OwnerShard.GuildID, out bool success, true, true);
-                    if (!success)
-                    {
-                        Log.Error("Failed to get configuration!");
-                    }
-                }
-                return _configuration;
+                return (ChannelUtilsComponentConfiguration)base.Configuration;
             }
         }
 
         public override void OnValidated()
         {
             base.OnValidated();
-            _configuration = ConfigurationService.GetComponentConfiguration<ChannelUtilsComponentConfiguration>(OwnerShard.GuildID, out bool success, true, true);
-            if (!success)
-            {
-                Log.Error("Failed to get configuration!");
-            }
             List<ChannelUtilsComponentConfiguration.StickyMessageData> invalidData = new List<ChannelUtilsComponentConfiguration.StickyMessageData>();
             foreach (ChannelUtilsComponentConfiguration.StickyMessageData data in Configuration.StickiedMessages)
             {
@@ -87,8 +74,18 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent
                 Configuration.Save();
             }
             OwnerShard.Client.MessageReceived += StickedMessageChecker;
+            OwnerShard.Client.MessageDeleted += OnMessageDeleted;
             Thread thread = new Thread(DoHandleStickedMessageChannels);
             thread.Start();
+        }
+
+        private Task OnMessageDeleted(Cacheable<IMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel)
+        {
+            if (CacheHasStickyChannel(channel.Id))
+            {
+                InvalidateStickyMessageCache(channel.Id);
+            }
+            return Task.CompletedTask;
         }
 
         public override void OnShutdown()
@@ -242,10 +239,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent
         {
             lock (_stickyMessageThreadLock)
             {
+                uint refreshTime = Configuration.RefreshStickyMessagesEveryXSeconds;
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 while (true)
                 {
-                    if (stopwatch.Elapsed.TotalSeconds < Configuration.RefreshStickyMessagesEveryXSeconds && !_terminating)
+                    if (stopwatch.Elapsed.TotalSeconds < refreshTime && !_terminating)
                     {
                         continue;
                     }
@@ -278,6 +276,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent
                         break;
                     }
                     stopwatch.Restart();
+                    refreshTime = Configuration.RefreshStickyMessagesEveryXSeconds;
                 }
                 stopwatch.Stop();
                 stopwatch.Reset();

@@ -1,4 +1,7 @@
-﻿namespace YetAnotherDiscordBot.ComponentSystem
+﻿using YetAnotherDiscordBot.Configuration;
+using YetAnotherDiscordBot.Service;
+
+namespace YetAnotherDiscordBot.ComponentSystem
 {
     public class Component
     {
@@ -7,6 +10,44 @@
         public virtual string Description { get; } = "";
 
         public bool HasLoaded { get; set; } = false;
+
+        public virtual ComponentConfiguration Configuration
+        {
+            get
+            {
+                if(_configuration != null)
+                {
+                    object? configConverted = Convert.ChangeType(_configuration, ConfigurationClass);
+                    if(configConverted != null)
+                    {
+                        _configuration = (ComponentConfiguration)configConverted;
+                    }
+                }
+                else
+                {
+                    object? instance = Activator.CreateInstance(ConfigurationClass);
+                    if(instance == null)
+                    {
+                        throw new InvalidOperationException($"Can't create by type {ConfigurationClass.Name}!");
+                    }
+                    else
+                    {
+                        ComponentConfiguration component = (ComponentConfiguration)instance;
+                        object currentConfig = ConfigurationService.GetComponentConfiguration(component, OwnerShard.GuildID, out bool success);
+                        if (!success)
+                        {
+                            throw new InvalidOperationException("Failed to load configuration!");
+                        }
+                        _configuration = (ComponentConfiguration)currentConfig;
+                    }
+                }
+                return _configuration;
+            }
+        }
+
+        public virtual Type ConfigurationClass { get; } = typeof(ComponentConfiguration);
+
+        private ComponentConfiguration? _configuration;
 
         public virtual List<Type> RequiredComponents { get; } = new List<Type>();
 

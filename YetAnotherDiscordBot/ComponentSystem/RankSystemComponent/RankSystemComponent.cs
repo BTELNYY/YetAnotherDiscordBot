@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,35 +34,19 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
             typeof(ListRankRoles),
         };
 
-        public RankSystemComponentConfiguration Configuration
+        public override Type ConfigurationClass => typeof(RankSystemComponentConfiguration);
+
+        public override RankSystemComponentConfiguration Configuration
         {
             get
             {
-                if(_configuration == null)
-                {
-                    Log.Warning("Getter in Rank Component caught null. Trying to read from disk!");
-                    _configuration = ConfigurationService.GetComponentConfiguration(new RankSystemComponentConfiguration(), OwnerShard.GuildID, out bool success, doRewrite: true);
-                    if (!success)
-                    {
-                        Log.Error("Failure to read component from disk!");
-                        _configuration = new RankSystemComponentConfiguration();
-                        ConfigurationService.WriteComponentConfiguration(new RankSystemComponentConfiguration(), OwnerShard.GuildID, true);
-                    }
-                }
-                return _configuration;
+                return (RankSystemComponentConfiguration)base.Configuration;
             }
         }
 
         public override void OnValidated()
         {
             base.OnValidated();
-            _configuration = ConfigurationService.GetComponentConfiguration(new RankSystemComponentConfiguration(), OwnerShard.GuildID, out bool success, doRewrite: true);
-            if (!success)
-            {
-                Log.Warning("Failure to get Component Config for rank component, restoring to default.");
-                _configuration = new RankSystemComponentConfiguration();
-                ConfigurationService.WriteComponentConfiguration(new RankSystemComponentConfiguration(), OwnerShard.GuildID, true);
-            }
             CacheRankRoles();
             OwnerShard.Client.MessageReceived += MessageRecieved;
             OwnerShard.Client.UserBanned += UserBanned;

@@ -10,7 +10,7 @@ namespace YetAnotherDiscordBot.Configuration
 {
     public class ComponentConfiguration : Configuration
     {
-        public virtual string Filename { get; } = "config.json";
+        public virtual string Filename { get; } = "ComponentName.json";
 
         public ulong OwnerID { get; set; } = 0;
 

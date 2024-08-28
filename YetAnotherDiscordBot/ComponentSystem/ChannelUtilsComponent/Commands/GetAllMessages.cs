@@ -28,9 +28,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
 
         public override GuildPermission RequiredPermission => GuildPermission.Administrator;
 
-        public async override void Execute(SocketSlashCommand command)
+        public override bool UseLegacyExecute => true;
+
+        public async override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             if(OwnerShard is null)
             {
                 await command.RespondAsync("An internal error has occured: OwnerShard is null!", ephemeral: true);

@@ -15,14 +15,16 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent.Commands
 
         public override string Description => "Gets your rank within the current server.";
 
+        public override bool UseLegacyExecute => true;
+
         public override List<Type> RequiredComponents => new List<Type>()
         {
             typeof(RankSystemComponent),
         };
 
-        public override void Execute(SocketSlashCommand command)
+        public override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             if(OwnerShard == null)
             {
                 command.RespondAsync("An error has occured: Shard reference is null!");

@@ -21,9 +21,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
             typeof(ModerationComponent),
         };
 
-        public override async void Execute(SocketSlashCommand command)
+        public override bool UseLegacyExecute => true;
+
+        public override async void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             if (OwnerShard is null)
             {
                 return;

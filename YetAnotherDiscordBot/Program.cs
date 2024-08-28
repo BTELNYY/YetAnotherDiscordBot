@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using YetAnotherDiscordBot.Configuration;
-using YetAnotherDiscordBot.Handlers;
 using YetAnotherDiscordBot.Service;
 
 namespace YetAnotherDiscordBot
@@ -73,14 +72,14 @@ namespace YetAnotherDiscordBot
             DiscordSocketConfig config = new()
             {
                 GatewayIntents = GatewayIntents.All,
-                MessageCacheSize = 50,              
+                MessageCacheSize = 50,          
             };
             string token = "";
             token = ConfigurationService.GlobalConfiguration.Token;
-            Client = new(config);
             Log.GlobalInfo("Starting Services...");
             ConfigurationService.Start();
             ShutdownService.Start();
+            CommandService.Start();
             ShutdownService.OnShutdownSignal += OnShutdown;
             Log.GlobalInfo("Connecting to discord...");
             await Client.LoginAsync(TokenType.Bot, token);
@@ -92,7 +91,7 @@ namespace YetAnotherDiscordBot
             Client.Log += LogEvent;
             Client.ApplicationCommandCreated += ApplicationCommandCreated;
             Client.GuildUnavailable += GuildRemoved;
-            Client.SlashCommandExecuted += CommandHandler.SlashCommandExecuted;
+            Client.SlashCommandExecuted += CommandService.SlashCommandExecuted;
             //AppDomain.CurrentDomain.FirstChanceException += OnExceptionOccured;
             await Task.Delay(-1);
         }
@@ -193,7 +192,7 @@ namespace YetAnotherDiscordBot
 
         public Task OnReady()
         {
-            CommandHandler.GlobalCommandInit();
+            CommandService.GlobalCommandInit();
             Log.GlobalInfo("Pre-Server startup Took {ms}ms".Replace("{ms}", stopwatch.ElapsedMilliseconds.ToString()));
             Log.GlobalInfo("Starting " + Client.Guilds.Count.ToString() + " threads. (One thread per guild)");
             foreach (SocketGuild guild in Client.Guilds)

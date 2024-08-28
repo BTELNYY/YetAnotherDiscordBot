@@ -22,9 +22,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.PingPreventionComponent.Commands
             typeof(PingPrevention)
         };
 
-        public async override void Execute(SocketSlashCommand command)
+        public override bool UseLegacyExecute => true;
+
+        public async override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             if (OwnerShard == null)
             {
                 DisplayError(command);

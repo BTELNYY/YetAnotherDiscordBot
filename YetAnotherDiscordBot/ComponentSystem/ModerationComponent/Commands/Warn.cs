@@ -14,6 +14,8 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
 
         public override string Description => "Warns a user.";
 
+        public override bool UseLegacyExecute => true;
+
         public override void BuildOptions()
         {
             base.BuildOptions();
@@ -36,9 +38,9 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
             Options.Add(optionsBase1);
         }
 
-        public override void Execute(SocketSlashCommand command)
+        public override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
         }
     }
 }

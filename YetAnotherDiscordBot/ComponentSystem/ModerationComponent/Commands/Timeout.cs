@@ -19,9 +19,12 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
         {
             typeof(ModerationComponent),
         };
-        public async override void Execute(SocketSlashCommand command)
+
+        public override bool UseLegacyExecute => true;
+
+        public async override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             SocketSlashCommandDataOption[] options = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             SocketGuildUser target = (SocketGuildUser)options[0].Value;
             if (OwnerShard is null)

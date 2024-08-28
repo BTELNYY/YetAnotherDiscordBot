@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using YetAnotherDiscordBot.Attributes;
 using YetAnotherDiscordBot.CommandBase;
 
-namespace YetAnotherDiscordBot.Commands
+namespace YetAnotherDiscordBot.CommandSystem.BuiltIn
 {
     [GlobalCommand]
     public class GetAllComponents : Command
@@ -20,11 +20,13 @@ namespace YetAnotherDiscordBot.Commands
 
         public override GuildPermission RequiredPermission => GuildPermission.ManageGuild;
 
-        public override void Execute(SocketSlashCommand command)
+        public override bool UseLegacyExecute => true;
+
+        public override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             string?[] components = Assembly.GetExecutingAssembly().GetTypes().Where(x => x.GetCustomAttribute<BotComponent>() != null).Select(x => x.FullName).ToArray();
-            if(components == null)
+            if (components == null)
             {
                 components = new string[1] { "Nothing to show." };
             }

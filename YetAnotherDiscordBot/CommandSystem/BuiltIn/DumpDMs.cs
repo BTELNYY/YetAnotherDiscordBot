@@ -9,7 +9,7 @@ using YetAnotherDiscordBot.Attributes;
 using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.Service;
 
-namespace YetAnotherDiscordBot.Commands
+namespace YetAnotherDiscordBot.CommandSystem.BuiltIn
 {
     [GlobalCommand]
     public class DumpDMs : Command
@@ -20,10 +20,12 @@ namespace YetAnotherDiscordBot.Commands
 
         public override string Description => "Dumps DMs of users. Note that only people registered as bot developers may do this.";
 
-        public async override void Execute(SocketSlashCommand command)
+        public override bool UseLegacyExecute => true;
+
+        public async override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
-            if(OwnerShard == null)
+            base.LegacyExecute(command);
+            if (OwnerShard == null)
             {
                 await command.RespondAsync("Sorry, an error has occured.", ephemeral: true);
                 return;
@@ -41,19 +43,19 @@ namespace YetAnotherDiscordBot.Commands
                 return;
             }
             SocketUser? targetUser = OwnerShard.Client.GetUser((ulong)userId);
-            if(targetUser == null)
+            if (targetUser == null)
             {
                 await command.RespondAsync(embed: new EmbedBuilder().GetErrorEmbed("Error", "Can't find user by ID."), ephemeral: true);
                 return;
             }
             IDMChannel? targetChannel = targetUser.CreateDMChannelAsync().Result;
-            if(targetChannel == null)
+            if (targetChannel == null)
             {
                 await command.RespondAsync(embed: new EmbedBuilder().GetErrorEmbed("Error", "Can't open DMs with that user."), ephemeral: true);
                 return;
             }
             IDMChannel? selfDmChannel = command.User.CreateDMChannelAsync().Result;
-            if(selfDmChannel == null)
+            if (selfDmChannel == null)
             {
                 await command.RespondAsync(embed: new EmbedBuilder().GetErrorEmbed("Error", "Can't open DMs with you."), ephemeral: true);
                 return;
@@ -64,12 +66,12 @@ namespace YetAnotherDiscordBot.Commands
             string filename = $"{userId}-{date}.txt";
             string filepath = ConfigurationService.ConfigFolder + "cache/" + filename;
             string data = "";
-            foreach(IMessage message in messages)
+            foreach (IMessage message in messages)
             {
                 string msg = $"[{message.Author.Username} ({message.Author.Id}), {message.CreatedAt}]: {message.Content} \n";
                 if (message.Embeds.Count != 0)
                 {
-                    foreach(Attachment attachment in message.Attachments)
+                    foreach (Attachment attachment in message.Attachments)
                     {
                         msg += attachment.Url + " ";
                     }

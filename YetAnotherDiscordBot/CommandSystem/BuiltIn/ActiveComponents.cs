@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.Attributes;
 
-namespace YetAnotherDiscordBot.Commands
+namespace YetAnotherDiscordBot.CommandSystem.BuiltIn
 {
     [GlobalCommand]
     public class ActiveComponents : Command
@@ -21,16 +21,18 @@ namespace YetAnotherDiscordBot.Commands
 
         public override string Description => "Lists all currently active components.";
 
-        public override void Execute(SocketSlashCommand command)
+        public override bool UseLegacyExecute => true;
+
+        public override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
-            if(OwnerShard == null)
+            base.LegacyExecute(command);
+            if (OwnerShard == null)
             {
                 command.RespondAsync("An error occured: OwnerShard is null.", ephemeral: true);
                 return;
             }
             string?[] components = OwnerShard.ComponentManager.CurrentComponents.Where(x => x.HasLoaded).Select(x => x.GetType().FullName).ToArray();
-            if(components == null)
+            if (components == null)
             {
                 command.RespondAsync("An error occured: List of components is null.", ephemeral: true);
                 return;
@@ -40,7 +42,7 @@ namespace YetAnotherDiscordBot.Commands
             builder.WithColor(Color.Blue);
             builder.WithTitle("Active Components");
             builder.WithCurrentTimestamp();
-            if(resultStr == "")
+            if (resultStr == "")
             {
                 resultStr = "No active components";
             }

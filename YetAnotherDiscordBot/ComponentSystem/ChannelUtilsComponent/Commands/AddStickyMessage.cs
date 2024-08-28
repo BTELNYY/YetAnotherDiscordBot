@@ -24,9 +24,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
 
         public override GuildPermission RequiredPermission => GuildPermission.ManageChannels;
 
-        public override void Execute(SocketSlashCommand command)
+        public override bool UseLegacyExecute => true;
+
+        public override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             if (OwnerShard == null)
             {
                 throw new InvalidOperationException("OwnerShard is null!");

@@ -22,9 +22,11 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
             typeof(ModerationComponent), 
         };
 
-        public override void Execute(SocketSlashCommand command)
+        public override bool UseLegacyExecute => true;
+
+        public override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             if(OwnerShard == null)
             {
                 command.RespondAsync("An error occured: OwnerShard is null.", ephemeral: true);

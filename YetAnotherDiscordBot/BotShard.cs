@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.ComponentSystem;
 using YetAnotherDiscordBot.Configuration;
-using YetAnotherDiscordBot.Handlers;
 using YetAnotherDiscordBot.Service;
 using Discord;
 using Discord.Net;
@@ -147,7 +146,7 @@ namespace YetAnotherDiscordBot
             {
                 return;
             }
-            if (!CommandHandler.Commands.ContainsKey(command.CommandName) && !PerBotCommands.ContainsKey(command.CommandName))
+            if (!CommandService.Commands.ContainsKey(command.CommandName) && !PerBotCommands.ContainsKey(command.CommandName))
             {
                 Log.Error("Command Not registered in Dict: " + command.CommandName);
                 command.RespondAsync("Sorry, this command is not registered internally, contact the developer about this.");
@@ -158,13 +157,22 @@ namespace YetAnotherDiscordBot
             }
             try
             {
-                if (!CommandHandler.Commands.ContainsKey(command.CommandName))
+                Command internalCommand = new Command();
+                if (!CommandService.Commands.ContainsKey(command.CommandName))
                 {
-                    PerBotCommands[command.CommandName].Execute(command);
+                    internalCommand = PerBotCommands[command.CommandName];
                 }
                 else
                 {
-                    CommandHandler.Commands[command.CommandName].Execute(command);
+                    internalCommand = CommandService.Commands[command.CommandName];
+                }
+                if(internalCommand.UseLegacyExecute)
+                {
+                    internalCommand.LegacyExecute(command);
+                }
+                else
+                {
+                    internalCommand.Execute(command);
                 }
             }
             catch (Exception ex)

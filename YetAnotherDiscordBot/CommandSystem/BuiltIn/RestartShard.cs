@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using YetAnotherDiscordBot.Attributes;
 using YetAnotherDiscordBot.CommandBase;
 
-namespace YetAnotherDiscordBot.Commands
+namespace YetAnotherDiscordBot.CommandSystem.BuiltIn
 {
     [GlobalCommand]
     public class RestartShard : Command
@@ -19,10 +19,12 @@ namespace YetAnotherDiscordBot.Commands
 
         public override string Description => "Restarts the current shard and applies all settings which were modified.";
 
-        public async override void Execute(SocketSlashCommand command)
+        public override bool UseLegacyExecute => true;
+
+        public async override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
-            if(OwnerShard == null)
+            base.LegacyExecute(command);
+            if (OwnerShard == null)
             {
                 await command.RespondAsync("An error occured: Shard is null.", ephemeral: true);
                 return;
@@ -34,7 +36,7 @@ namespace YetAnotherDiscordBot.Commands
 
         private void DoRestartTask(object? obj)
         {
-            if(obj is not ulong)
+            if (obj is not ulong)
             {
                 Log.Error("Failed to restart thread: not a valid ulong!");
             }

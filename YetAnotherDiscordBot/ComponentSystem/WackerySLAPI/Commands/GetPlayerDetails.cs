@@ -16,14 +16,16 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI.Commands
         public override bool IsDefaultEnabled => true;
         public override GuildPermission RequiredPermission => GuildPermission.ModerateMembers;
 
+        public override bool UseLegacyExecute => true;
+
         public override List<Type> RequiredComponents => new List<Type>()
         {
             typeof(SLAPIComponent)
         };
 
-        public override async void Execute(SocketSlashCommand command)
+        public override async void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             SocketSlashCommandDataOption[] options = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             Embed[] embeds;
             if (OwnerShard == null)

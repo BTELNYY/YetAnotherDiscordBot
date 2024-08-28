@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using YetAnotherDiscordBot.ComponentSystem.WackerySLAPI.Commands;
 using YetAnotherDiscordBot.Service;
 using YetAnotherDiscordBot.Attributes;
+using System.Diagnostics;
 
 namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
 {
@@ -37,6 +38,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
         private bool _threadShouldSuicide = false;
 
         private Thread? _updateThread;
+
         public override List<Type> ImportedCommands => new List<Type>()
         {
             typeof(GetPlayerDetails),
@@ -53,16 +55,28 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
             }
         }
 
+        private object _threadLock = new object();
+
         private void UpdateThreadMethod()
         {
-            while (true)
+            lock (_threadLock)
             {
-                if (_threadShouldSuicide)
+                int updateEverySeconds = Configuration.UpdateEverySeconds;
+                Stopwatch watch = Stopwatch.StartNew();
+                while (true)
                 {
-                    return;
+                    if (_threadShouldSuicide)
+                    {
+                        break;
+                    }
+                    if (watch.Elapsed.TotalSeconds < updateEverySeconds)
+                    {
+                        continue;
+                    }
+                    UpdateEmbed();
+                    updateEverySeconds = Configuration.UpdateEverySeconds;
                 }
-                UpdateEmbed();
-                Thread.Sleep(Configuration.UpdateEverySeconds * 1000);
+                watch.Stop();
             }
         }
 
@@ -188,6 +202,10 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI
         {
             base.OnShutdown();
             _threadShouldSuicide = true;
+            lock (_threadLock)
+            {
+                Log.Info("Update thread shutdown complete.");
+            }
         }
 
         public string TestAuth(string token)

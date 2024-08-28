@@ -24,6 +24,8 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
             typeof(ChannelUtilsComponent),
         };
 
+        public override bool UseLegacyExecute => true;
+
         public override void BuildOptions()
         {
             base.BuildOptions();
@@ -46,9 +48,9 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent.Commands
             Options.Add(optionsBase1);
         }
 
-        public override void Execute(SocketSlashCommand command)
+        public override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             if(OwnerShard == null)
             {
                 Log.Error("OwnerShard is null!");

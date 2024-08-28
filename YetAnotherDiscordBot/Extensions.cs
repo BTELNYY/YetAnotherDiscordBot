@@ -38,5 +38,47 @@ namespace YetAnotherDiscordBot
             }
             return message;
         }
+
+        /// <summary>
+        /// Checks if the type is a sublcass of the generic type <paramref name="generic"/>.
+        /// </summary>
+        /// <param name="toCheck"></param>
+        /// <param name="generic"></param>
+        /// <returns></returns>
+        public static bool IsSubclassOfRawGeneric(this Type toCheck, Type generic)
+        {
+            while (toCheck != null && toCheck != typeof(object))
+            {
+                var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
+                if (generic == cur)
+                {
+                    return true;
+                }
+                if(toCheck.BaseType == null)
+                {
+                    return false;
+                }
+                toCheck = toCheck.BaseType;
+            }
+            return false;
+        }
+
+        public static Type? GetSuperClass(this Type type, Type super)
+        {
+            while (type != null && type != typeof(object))
+            {
+                var cur = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
+                if (super == cur)
+                {
+                    return cur;
+                }
+                if (type.BaseType == null)
+                {
+                    return null;
+                }
+                type = type.BaseType;
+            }
+            return null;
+        }
     }
 }

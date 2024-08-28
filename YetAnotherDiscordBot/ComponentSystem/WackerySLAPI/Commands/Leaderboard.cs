@@ -15,13 +15,16 @@ namespace YetAnotherDiscordBot.ComponentSystem.WackerySLAPI.Commands
         public override string Description => "get the play time leaderboard";
         public override GuildPermission RequiredPermission => base.RequiredPermission;
         public override bool IsDefaultEnabled => true;
+        public override bool UseLegacyExecute => true;
+
         public override List<Type> RequiredComponents => new List<Type>()
         {
             typeof(SLAPIComponent),
         };
-        public override async void Execute(SocketSlashCommand command)
+
+        public override async void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             if (OwnerShard == null)
             {
                 await command.RespondAsync(embed: new EmbedBuilder().GetErrorEmbed("Error", "Cannot run this in DMs."));

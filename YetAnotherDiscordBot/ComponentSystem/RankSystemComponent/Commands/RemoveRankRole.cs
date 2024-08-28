@@ -17,14 +17,16 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent.Commands
 
         public override string Description => "Removes a rank role to the current guild.";
 
+        public override bool UseLegacyExecute => true;
+
         public override List<Type> RequiredComponents => new List<Type>()
         {
             typeof(RankSystemComponent)
         };
 
-        public override void Execute(SocketSlashCommand command)
+        public override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             if (OwnerShard == null)
             {
                 EmbedBuilder builder = new EmbedBuilder();

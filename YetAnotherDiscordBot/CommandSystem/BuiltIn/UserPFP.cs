@@ -9,7 +9,7 @@ using System.Transactions;
 using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.Attributes;
 
-namespace YetAnotherDiscordBot.Commands
+namespace YetAnotherDiscordBot.CommandSystem.BuiltIn
 {
     [GlobalCommand]
     public class UserPFP : Command
@@ -18,9 +18,11 @@ namespace YetAnotherDiscordBot.Commands
 
         public override string Description => "Get a users profile picture.";
 
-        public override void Execute(SocketSlashCommand command)
+        public override bool UseLegacyExecute => true;
+
+        public override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             SocketSlashCommandDataOption[] options = (SocketSlashCommandDataOption[])GetOptionsOrdered(command.Data.Options.ToList());
             SocketGuildUser user = (SocketGuildUser)options[0].Value;
             ulong id = user.Id;

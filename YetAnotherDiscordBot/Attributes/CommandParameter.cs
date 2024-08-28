@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,27 +11,11 @@ namespace YetAnotherDiscordBot.Attributes
     [AttributeUsage(AttributeTargets.Parameter)]
     public class CommandParameter : Attribute
     {
-        public CommandParameter(string description)
+        public CommandParameter(SlashCommandOptionBuilder builder)
         {
-            Description = description ?? throw new ArgumentNullException(nameof(description));
+            Builder = builder;
         }
 
-        public CommandParameter(string description, string nameOverride) : this(description)
-        {
-            NameOverride = nameOverride ?? throw new ArgumentNullException(nameof(nameOverride));
-        }
-
-        public CommandParameter(string description, string nameOverride, object defaultValueOverride) : this(description, nameOverride)
-        {
-            DefaultValueOverride = defaultValueOverride ?? throw new ArgumentNullException(nameof(defaultValueOverride));
-        }
-
-        public string Description { get; set; } = string.Empty;
-
-        public string NameOverride { get; set; } = string.Empty;
-
-        public object DefaultValueOverride { get; set; } = new object();
-
-        
+        public SlashCommandOptionBuilder Builder { get; set; } = new SlashCommandOptionBuilder();
     }
 }

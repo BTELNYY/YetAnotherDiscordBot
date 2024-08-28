@@ -17,14 +17,16 @@ namespace YetAnotherDiscordBot.ComponentSystem.PingPreventionComponent.Commands
 
         public override GuildPermission RequiredPermission => GuildPermission.ManageGuild;
 
+        public override bool UseLegacyExecute => true;
+
         public override List<Type> RequiredComponents => new List<Type>()
         {
             typeof(PingPrevention)
         };
 
-        public async override void Execute(SocketSlashCommand command)
+        public async override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
+            base.LegacyExecute(command);
             if(OwnerShard == null)
             {
                 DisplayError(command);

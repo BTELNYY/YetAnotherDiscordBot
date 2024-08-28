@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using YetAnotherDiscordBot.ComponentSystem;
 using System.Net.Mime;
+using System.Reflection;
+using YetAnotherDiscordBot.Attributes;
 
 namespace YetAnotherDiscordBot.CommandBase
 {
@@ -51,6 +53,32 @@ namespace YetAnotherDiscordBot.CommandBase
         public BotShard? OwnerShard { get; private set; }
         public List<SocketSlashCommandDataOption> OptionsProcessed { get; private set; } = new List<SocketSlashCommandDataOption>();
 
+        private MethodInfo? _targetExecuteMethod;
+
+        public MethodInfo TargetCommandMethod
+        {
+            get
+            {
+                if(_targetExecuteMethod != null)
+                {
+                    return _targetExecuteMethod;
+                }
+                Type t = GetType();
+                MethodInfo? method = t.GetMethods().Where(x => x.GetCustomAttribute<CommandMethod>() != null).FirstOrDefault();
+                if(method != null)
+                {
+                    _targetExecuteMethod = method;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Failed to find Target Execute Method in this command!");
+                }
+                return _targetExecuteMethod;
+            }
+        }
+
+        public virtual bool UseLegacyExecute { get; } = false;
+
         private Log? _log;
 
         public Log Log
@@ -72,8 +100,22 @@ namespace YetAnotherDiscordBot.CommandBase
             }
         }
 
+        public void Execute(SocketSlashCommand command)
+        {
+            List<string?> namesInOrder = TargetCommandMethod.GetParameters().Select(x => x.Name).ToList();
+            Dictionary<string, SocketSlashCommandDataOption> ordered = new Dictionary<string, SocketSlashCommandDataOption>();
+            foreach(string? name in namesInOrder)
+            {
+                if(name == null)
+                {
+                    Log.Error("Name is null!");
+                    continue;
+                }
+                
+            }
+        }
 
-        public virtual void Execute(SocketSlashCommand command)
+        public virtual void LegacyExecute(SocketSlashCommand command)
         {
             if(command.GuildId.HasValue)
             {

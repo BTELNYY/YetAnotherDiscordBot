@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.Attributes;
 
-namespace YetAnotherDiscordBot.Commands
+namespace YetAnotherDiscordBot.CommandSystem.BuiltIn
 {
     [GlobalCommand]
     public class Ping : Command
@@ -17,10 +17,11 @@ namespace YetAnotherDiscordBot.Commands
         public override string Description => "Pong!";
         public override bool IsDefaultEnabled => true;
         public override GuildPermission RequiredPermission => GuildPermission.UseApplicationCommands;
-        public override async void Execute(SocketSlashCommand command)
+        public override bool UseLegacyExecute => true;
+        public override async void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
-            if(OwnerShard == null)
+            base.LegacyExecute(command);
+            if (OwnerShard == null)
             {
                 Log.GlobalError("ShardWhoRanMe is null but a command went off on it.");
                 return;

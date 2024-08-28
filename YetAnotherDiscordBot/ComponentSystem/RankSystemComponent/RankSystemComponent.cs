@@ -22,9 +22,6 @@ namespace YetAnotherDiscordBot.ComponentSystem.RankSystemComponent
         private Dictionary<ulong, string> MessageCache = new Dictionary<ulong, string>();
 
         private Dictionary<uint, List<RankRoleData>> _roleDataCache = new Dictionary<uint, List<RankRoleData>>();
-
-        private RankSystemComponentConfiguration? _configuration;
-
         public override List<Type> ImportedCommands => new List<Type>()
         {
             typeof(Rank),

@@ -10,7 +10,7 @@ using YetAnotherDiscordBot.Attributes;
 using YetAnotherDiscordBot.CommandBase;
 using YetAnotherDiscordBot.ComponentSystem;
 
-namespace YetAnotherDiscordBot.Commands
+namespace YetAnotherDiscordBot.CommandSystem.BuiltIn
 {
     [GlobalCommand]
     public class RemoveComponent : Command
@@ -21,10 +21,12 @@ namespace YetAnotherDiscordBot.Commands
 
         public override GuildPermission RequiredPermission => GuildPermission.Administrator;
 
-        public override void Execute(SocketSlashCommand command)
+        public override bool UseLegacyExecute => true;
+
+        public override void LegacyExecute(SocketSlashCommand command)
         {
-            base.Execute(command);
-            if(OwnerShard == null)
+            base.LegacyExecute(command);
+            if (OwnerShard == null)
             {
                 command.RespondAsync("An error occured: OwnerShard is null.", ephemeral: true);
                 return;
@@ -37,7 +39,7 @@ namespace YetAnotherDiscordBot.Commands
                 command.RespondAsync("That is not a valid component.", ephemeral: true);
                 return;
             }
-            if(!OwnerShard.ServerConfiguration.AddedComponents.Contains(component))
+            if (!OwnerShard.ServerConfiguration.AddedComponents.Contains(component))
             {
                 command.RespondAsync("Sorry, That component isn't added on this shard.", ephemeral: true);
                 return;

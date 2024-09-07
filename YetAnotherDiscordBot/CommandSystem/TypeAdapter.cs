@@ -18,12 +18,12 @@ namespace YetAnotherDiscordBot.CommandSystem
             }
         }
 
-        public virtual T Adapt(SocketSlashCommandDataOption option, BotShard shard)
+        public virtual T Adapt(SocketSlashCommandDataOption option, BotShard? shard)
         {
             throw new NotImplementedException();
         }
 
-        public object? AdaptGeneric(SocketSlashCommandDataOption option, BotShard shard)
+        public object? AdaptGeneric(SocketSlashCommandDataOption option, BotShard? shard)
         {
             object? result = Adapt(option, shard);
             return result;

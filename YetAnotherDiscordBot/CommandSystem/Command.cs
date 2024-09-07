@@ -9,6 +9,7 @@ using YetAnotherDiscordBot.ComponentSystem;
 using System.Net.Mime;
 using System.Reflection;
 using YetAnotherDiscordBot.Attributes;
+using YetAnotherDiscordBot.CommandSystem;
 
 namespace YetAnotherDiscordBot.CommandBase
 {
@@ -102,17 +103,41 @@ namespace YetAnotherDiscordBot.CommandBase
 
         public void Execute(SocketSlashCommand command)
         {
-            List<string?> namesInOrder = TargetCommandMethod.GetParameters().Select(x => x.Name).ToList();
-            Dictionary<string, SocketSlashCommandDataOption> ordered = new Dictionary<string, SocketSlashCommandDataOption>();
-            foreach(string? name in namesInOrder)
+            if (command.GuildId.HasValue)
             {
-                if(name == null)
+                OwnerShard = Program.GetShard(command.GuildId.Value);
+            }
+            //Names of all the params
+            List<ParameterInfo> parameters = TargetCommandMethod.GetParameters().ToList();
+            List<SocketSlashCommandDataOption> options = command.Data.Options.ToList();
+            List<object> invokeArgs = new List<object>();
+            foreach (ParameterInfo parameter in parameters)
+            {
+                if (parameter.ParameterType == typeof(SocketSlashCommand))
                 {
-                    Log.Error("Name is null!");
+                    invokeArgs.Add(command);
                     continue;
                 }
-                
+                string? paramName = parameter.Name ?? throw new InvalidOperationException("All parameters must have names!");
+                SocketSlashCommandDataOption? option = options.Find(x => x.Name == paramName);
+                if (option == null)
+                {
+                    if (!parameter.HasDefaultValue)
+                    {
+                        throw new InvalidOperationException($"Parameter {paramName} which is marked as required could not be found in the provided command invocation.");
+                    }
+                    else
+                    {
+                        object defaultValue = parameter.DefaultValue ?? throw new InvalidOperationException("Default value is null.");
+                        invokeArgs.Add(defaultValue);
+                        continue;
+                    }
+                }
+                IGenericTypeAdapter? adapter = YetAnotherDiscordBot.Service.CommandService.GetAdapter(option.Value.GetType()) ?? throw new InvalidOperationException($"No adapter for type: {option.Value.GetType().FullName}");
+                object? adapted = adapter.AdaptGeneric(option, OwnerShard) ?? throw new InvalidOperationException("Adapter returned a null value.");
+                invokeArgs.Add(adapted);
             }
+            TargetCommandMethod.Invoke(this, invokeArgs.ToArray());
         }
 
         public virtual void LegacyExecute(SocketSlashCommand command)

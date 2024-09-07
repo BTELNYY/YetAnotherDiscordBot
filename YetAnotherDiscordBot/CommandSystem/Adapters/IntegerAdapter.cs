@@ -14,7 +14,7 @@ namespace YetAnotherDiscordBot.CommandSystem.Adapters
     {
         public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 
-        public override long Adapt(SocketSlashCommandDataOption option, BotShard shard)
+        public override long Adapt(SocketSlashCommandDataOption option, BotShard? shard)
         {
             return (long)option.Value;
         }

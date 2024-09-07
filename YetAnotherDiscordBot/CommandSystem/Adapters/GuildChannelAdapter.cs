@@ -14,8 +14,12 @@ namespace YetAnotherDiscordBot.CommandSystem.Adapters
     {
         public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Channel;
 
-        public override SocketGuildChannel Adapt(SocketSlashCommandDataOption option, BotShard shard)
+        public override SocketGuildChannel Adapt(SocketSlashCommandDataOption option, BotShard? shard)
         {
+            if (shard == null)
+            {
+                throw new ArgumentNullException(nameof(shard));
+            }
             return shard.TargetGuild.GetChannel(((IChannel)option.Value).Id);
         }
     }

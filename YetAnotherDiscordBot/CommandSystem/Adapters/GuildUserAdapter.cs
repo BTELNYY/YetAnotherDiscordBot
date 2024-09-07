@@ -14,8 +14,12 @@ namespace YetAnotherDiscordBot.CommandSystem.Adapters
     {
         public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.User;
 
-        public override SocketGuildUser Adapt(SocketSlashCommandDataOption option, BotShard shard)
+        public override SocketGuildUser Adapt(SocketSlashCommandDataOption option, BotShard? shard)
         {
+            if (shard == null)
+            {
+                throw new ArgumentNullException(nameof(shard));
+            }
             IUser user = (IUser)option.Value;
             SocketGuildUser guild = shard.TargetGuild.GetUser(user.Id);
             return guild;

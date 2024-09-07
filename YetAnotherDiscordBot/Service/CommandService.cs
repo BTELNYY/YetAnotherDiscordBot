@@ -21,7 +21,44 @@ namespace YetAnotherDiscordBot.Service
     {
         public static Dictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
 
-        public static Dictionary<Type, IGenericTypeAdapter> Adapters { get; private set; } = new Dictionary<Type, IGenericTypeAdapter>();
+        static Dictionary<Type, IGenericTypeAdapter> Adapters { get; set; } = new Dictionary<Type, IGenericTypeAdapter>();
+
+        public static IGenericTypeAdapter? GetAdapter(Type type)
+        {
+            if (Adapters.ContainsKey(type))
+            {
+                return Adapters[type];
+            }
+            return null;
+        }
+
+        public static bool HasAdapter(Type type)
+        {
+            return Adapters.ContainsKey(type);
+        }
+
+        public static void SetAdapter(Type type, IGenericTypeAdapter? adapter)
+        {
+            if (Adapters.ContainsKey(type))
+            {
+                if(adapter == null)
+                {
+                    Adapters.Remove(type);
+                }
+                else
+                {
+                    Adapters[type] = adapter;
+                }
+            }
+            else
+            {
+                if(adapter == null)
+                {
+                    throw new ArgumentException("Adapter cannot be null when the type it adapts does not exist in the registered list of adapters.", "adapter");
+                }
+                Adapters.Add(type, adapter);
+            }
+        }
 
         public static void GlobalCommandInit()
         {

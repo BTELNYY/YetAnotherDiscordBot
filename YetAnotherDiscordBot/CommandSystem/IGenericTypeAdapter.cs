@@ -10,7 +10,7 @@ namespace YetAnotherDiscordBot.CommandSystem
 {
     public interface IGenericTypeAdapter
     {
-        object? AdaptGeneric(SocketSlashCommandDataOption option, BotShard shard);
+        object? AdaptGeneric(SocketSlashCommandDataOption option, BotShard? shard);
         ApplicationCommandOptionType Type { get; }
     }
 }

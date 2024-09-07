@@ -22,7 +22,12 @@ namespace YetAnotherDiscordBot.CommandSystem.BuiltIn
         [CommandMethod]
         public void Execute(SocketSlashCommand command, string data, long data1, SocketGuildUser? user = null)
         {
-
+            string userName = "noUser";
+            if(user != null)
+            {
+                userName = user.GlobalName; 
+            }
+            command.RespondAsync($"{data}, {data1}, {userName}");
         }
     }
 }

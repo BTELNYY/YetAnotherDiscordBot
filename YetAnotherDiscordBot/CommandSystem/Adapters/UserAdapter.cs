@@ -15,10 +15,10 @@ namespace YetAnotherDiscordBot.CommandSystem.Adapters
     {
         public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.User;
 
-        public override SocketUser Adapt(SocketSlashCommandDataOption option, BotShard shard)
+        public override SocketUser Adapt(SocketSlashCommandDataOption option, BotShard? shard)
         {
             IUser user = (IUser)option.Value;
-            return shard.Client.GetUser(user.Id);
+            return Program.Client.GetUser(user.Id);
         }
     }
 }

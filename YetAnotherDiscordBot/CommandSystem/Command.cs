@@ -10,13 +10,23 @@ using System.Net.Mime;
 using System.Reflection;
 using YetAnotherDiscordBot.Attributes;
 using YetAnotherDiscordBot.CommandSystem;
+using Discord.Rest;
+using Discord.Interactions;
 
 namespace YetAnotherDiscordBot.CommandBase
 {
-    public class Command
+    public class Command : InteractionModuleBase
     {
         public virtual string CommandName { get; } = "commandname";
         public virtual string Description { get; } = "Command Description";
+
+        public virtual bool RegisterAsInteractionService
+        {
+            get
+            {
+                return false;
+            }
+        }
 
         public bool IsDMEnabled
         {

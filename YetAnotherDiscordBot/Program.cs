@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
 using System;
 using System.Diagnostics;
@@ -29,6 +30,20 @@ namespace YetAnotherDiscordBot
                 return ConfigurationService.GlobalConfiguration;
             }
         }
+
+        public static InteractionService InteractionService
+        {
+            get
+            {
+                if(interactionService == null)
+                {
+                    interactionService = new(Client);
+                }
+                return interactionService;
+            }
+        }
+
+        static InteractionService? interactionService;
 
         public static BotShard GetShard(ulong id)
         {
@@ -77,6 +92,7 @@ namespace YetAnotherDiscordBot
             string token = "";
             token = ConfigurationService.GlobalConfiguration.Token;
             Log.GlobalInfo("Starting Services...");
+            interactionService = new InteractionService(Client);
             ConfigurationService.Start();
             ShutdownService.Start();
             CommandService.Start();

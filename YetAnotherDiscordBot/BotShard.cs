@@ -12,6 +12,7 @@ using Discord;
 using Discord.Net;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using Discord.Interactions;
 
 namespace YetAnotherDiscordBot
 {
@@ -191,19 +192,13 @@ namespace YetAnotherDiscordBot
 
         public async Task<bool> BuildShardCommand(Command command)
         {
-            SlashCommandBuilder scb = new();
-            scb.WithName(command.CommandName);
-            scb.WithDescription(command.Description);
-            scb.WithContextTypes(command.ContentTypes);
-            command.BuildOptions();
-            foreach (CommandOption cop in command.Options)
-            {
-                scb.AddOption(cop.Name, cop.OptionType, cop.Description, cop.Required);
-            }
-            
-            scb.DefaultMemberPermissions = command.RequiredPermission;
-            scb.IsDefaultPermission = command.IsDefaultEnabled;
+            SlashCommandBuilder scb = CommandService.BuildCommand(command);
             command.BuildAliases();
+            if (command.RegisterAsInteractionService)
+            {
+                Log.GlobalInfo($"Command {command.CommandName} is being registered as an interaction service command.");
+                await Program.InteractionService.AddCommandsToGuildAsync(TargetGuild, true, new ICommandInfo[] { (ICommandInfo)command });
+            }
             PerBotCommands.Add(command.CommandName, command);
             Log.Info("Registering Aliases for: " + command.CommandName + "; Alias: " + string.Join(", ", command.Aliases.ToArray()));
             foreach (string alias in command.Aliases)
@@ -234,7 +229,6 @@ namespace YetAnotherDiscordBot
             }
             return true;
         }
-
 
         public void StartBot()
         {

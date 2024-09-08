@@ -136,70 +136,12 @@ namespace YetAnotherDiscordBot.Service
             {
                 throw new ArgumentException("Tried validating command as Global command but the command has required components, This is not allowed.", "command");
             }
-            DiscordSocketClient client = Program.Client;
-            SlashCommandBuilder scb = new();
-            scb.WithName(command.CommandName);
-            scb.WithDescription(command.Description);
-            scb.WithContextTypes(command.ContentTypes);
-            if (command.UseLegacyExecute)
+            if (command.RegisterAsInteractionService)
             {
-                command.BuildOptions();
-                foreach (CommandOption cop in command.Options)
-                {
-                    Log.GlobalDebug("Building option: " + cop.Name);
-                    scb.AddOption(cop.Name, cop.OptionType, cop.Description, cop.Required);
-                }
+                Log.GlobalInfo($"Command {command.CommandName} is being registered as an interaction service command.");
+                Program.InteractionService.AddCommandsGloballyAsync(true, new Discord.Interactions.IApplicationCommandInfo[] { (Discord.Interactions.IApplicationCommandInfo)command });
             }
-            else
-            {
-                MethodInfo targetMethod = command.TargetCommandMethod;
-                List<ParameterInfo> @params = targetMethod.GetParameters().ToList();
-                if(@params.First().ParameterType != typeof(SocketSlashCommand))
-                {
-                    Log.GlobalError($"The first param for the command {command.CommandName} is not a SocketSlashCommand, without this, the command won't work.");
-                }
-                foreach(ParameterInfo param in @params)
-                {
-                    CommandParameter? attribute = param.GetCustomAttribute<CommandParameter>();
-                    if (param.ParameterType == typeof(SocketSlashCommand))
-                    {
-                        continue;
-                    }
-                    if (!Adapters.ContainsKey(param.ParameterType))
-                    {
-                        Log.GlobalError($"Illegal Paramater type: {param.ParameterType.FullName}");
-                        continue;
-                    }
-                    IGenericTypeAdapter adapter = Adapters[param.ParameterType];
-                    SlashCommandOptionBuilder builder = new SlashCommandOptionBuilder();
-                    builder.WithName(param.Name);
-                    builder.WithRequired(!param.HasDefaultValue);
-                    builder.WithType(adapter.Type);
-                    builder.WithDescription("(No description was set)");
-                    if(attribute != null)
-                    {
-                        builder = attribute.Builder;
-                        if(builder.Type != adapter.Type)
-                        {
-                            Log.GlobalWarning($"Builder type and adapter type mismatch. Builder type has been overriden.");
-                            builder.Type = adapter.Type;
-                        }
-                        if(builder.IsRequired != !param.HasDefaultValue)
-                        {
-                            Log.GlobalWarning($"Builder required flag mismatch with parameter. Builder has been overriden.");
-                            builder.IsRequired = !param.HasDefaultValue;
-                        }
-                        if(builder.Name != param.Name)
-                        {
-                            Log.GlobalWarning($"Builder param name has been mismatched with the param name. Builder name has been overriden.");
-                            builder.Name = param.Name;
-                        }
-                    }
-                    scb.AddOption(builder);
-                }
-            }
-            scb.DefaultMemberPermissions = command.RequiredPermission;
-            scb.IsDefaultPermission = command.IsDefaultEnabled;
+            SlashCommandBuilder builder = BuildCommand(command);
             command.BuildAliases();
             Commands.Add(command.CommandName, command);
             Log.GlobalInfo("Registering Aliases for: " + command.CommandName + "; Alias: " + string.Join(", ", command.Aliases.ToArray()));
@@ -221,6 +163,75 @@ namespace YetAnotherDiscordBot.Service
             {
                 Log.GlobalError("Failed to build command: " + command.CommandName + "\n Error: \n " + exception.ToString());
             }
+        }
+
+        public static SlashCommandBuilder BuildCommand(Command command)
+        {
+            DiscordSocketClient client = Program.Client;
+            SlashCommandBuilder scb = new();
+            scb.WithName(command.CommandName);
+            scb.WithDescription(command.Description);
+            scb.WithContextTypes(command.ContentTypes);
+            if (command.UseLegacyExecute)
+            {
+                command.BuildOptions();
+                foreach (CommandOption cop in command.Options)
+                {
+                    Log.GlobalDebug("Building option: " + cop.Name);
+                    scb.AddOption(cop.Name, cop.OptionType, cop.Description, cop.Required);
+                }
+            }
+            else
+            {
+                MethodInfo targetMethod = command.TargetCommandMethod;
+                List<ParameterInfo> @params = targetMethod.GetParameters().ToList();
+                if (@params.First().ParameterType != typeof(SocketSlashCommand))
+                {
+                    Log.GlobalError($"The first param for the command {command.CommandName} is not a SocketSlashCommand, without this, the command won't work.");
+                }
+                foreach (ParameterInfo param in @params)
+                {
+                    CommandParameter? attribute = param.GetCustomAttribute<CommandParameter>();
+                    if (param.ParameterType == typeof(SocketSlashCommand))
+                    {
+                        continue;
+                    }
+                    if (!Adapters.ContainsKey(param.ParameterType))
+                    {
+                        Log.GlobalError($"Illegal Paramater type: {param.ParameterType.FullName}");
+                        continue;
+                    }
+                    IGenericTypeAdapter adapter = Adapters[param.ParameterType];
+                    SlashCommandOptionBuilder builder = new SlashCommandOptionBuilder();
+                    builder.WithName(param.Name);
+                    builder.WithRequired(!param.HasDefaultValue);
+                    builder.WithType(adapter.Type);
+                    builder.WithDescription("(No description was set)");
+                    if (attribute != null)
+                    {
+                        builder = attribute.Builder;
+                        if (builder.Type != adapter.Type)
+                        {
+                            Log.GlobalWarning($"Builder type and adapter type mismatch. Builder type has been overriden.");
+                            builder.Type = adapter.Type;
+                        }
+                        if (builder.IsRequired != !param.HasDefaultValue)
+                        {
+                            Log.GlobalWarning($"Builder required flag mismatch with parameter. Builder has been overriden.");
+                            builder.IsRequired = !param.HasDefaultValue;
+                        }
+                        if (builder.Name != param.Name)
+                        {
+                            Log.GlobalWarning($"Builder param name has been mismatched with the param name. Builder name has been overriden.");
+                            builder.Name = param.Name;
+                        }
+                    }
+                    scb.AddOption(builder);
+                }
+            }
+            scb.DefaultMemberPermissions = command.RequiredPermission;
+            scb.IsDefaultPermission = command.IsDefaultEnabled;
+            return scb;
         }
 
         public static Task SlashCommandExecuted(SocketSlashCommand command)

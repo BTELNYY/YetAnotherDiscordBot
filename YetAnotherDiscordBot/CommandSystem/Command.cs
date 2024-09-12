@@ -129,7 +129,7 @@ namespace YetAnotherDiscordBot.CommandBase
                     continue;
                 }
                 string? paramName = parameter.Name ?? throw new InvalidOperationException("All parameters must have names!");
-                SocketSlashCommandDataOption? option = options.Find(x => x.Name == paramName);
+                SocketSlashCommandDataOption? option = options.Find(x => x.Name == paramName.ToLower());
                 if (option == null)
                 {
                     if (!parameter.HasDefaultValue)

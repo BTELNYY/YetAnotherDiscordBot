@@ -107,6 +107,7 @@ namespace YetAnotherDiscordBot.Service
             Type[] commands = assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(Command)) && x.GetCustomAttribute<GlobalCommand>() != null).ToArray();
             foreach (Type command in commands)
             {
+                Log.GlobalInfo($"Building: {command.Name}");
                 BuildCommand(command, true);
             }
         }
@@ -127,7 +128,7 @@ namespace YetAnotherDiscordBot.Service
             {
                 throw new ArgumentException("Tried validating command as Global command but the command has required components, This is not allowed.", "command");
             }
-            BuildCommand(command);
+            BuildCommand(command, validateAsGlobalCommand);
         }
 
         public static void BuildCommand(Command command, bool validateAsGlobalCommand = false)
@@ -152,7 +153,7 @@ namespace YetAnotherDiscordBot.Service
             try
             {
                 Log.GlobalInfo("Building Command: " + command.CommandName);
-                client.CreateGlobalApplicationCommandAsync(scb.Build());
+                Program.Client.CreateGlobalApplicationCommandAsync(builder.Build());
             }
             catch (HttpException exception)
             {
@@ -203,7 +204,12 @@ namespace YetAnotherDiscordBot.Service
                     }
                     IGenericTypeAdapter adapter = Adapters[param.ParameterType];
                     SlashCommandOptionBuilder builder = new SlashCommandOptionBuilder();
-                    builder.WithName(param.Name);
+                    if(param.Name == null)
+                    {
+                        Log.GlobalError("Illegal name: null");
+                        continue;
+                    }
+                    builder.WithName(param.Name.ToLower());
                     builder.WithRequired(!param.HasDefaultValue);
                     builder.WithType(adapter.Type);
                     builder.WithDescription("(No description was set)");

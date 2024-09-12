@@ -30,6 +30,7 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent
             typeof(LockdownChannel),
             typeof(TimeoutUser),
             typeof(ServerLockdown),
+            typeof(ScanInactive),
         };
 
         public override Type ConfigurationClass => typeof(ModeratonComponentConfiguration);

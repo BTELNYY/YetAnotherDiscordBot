@@ -85,8 +85,10 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
                             continue;
                         }
                         lastMessageId = messages.Last().Id;
-                        if (messages.Last().CreatedAt.Offset.TotalDays >= days)
+                        double timeDiff = (messages.Last().CreatedAt.UtcDateTime - DateTimeOffset.Now.UtcDateTime).TotalDays;
+                        if (timeDiff >= days)
                         {
+                            Log.Debug("Finished Scan: Messages older than set date.");
                             hasFinishedScan = true;
                             continue;
                         }
@@ -103,8 +105,12 @@ namespace YetAnotherDiscordBot.ComponentSystem.ModerationComponent.Commands
                         continue;
                     }
                     lastMessageId = messages.Last().Id;
-                    if (messages.Last().CreatedAt.Offset.TotalDays >= days)
+                    var lastMessage = messages.Last();
+                    Log.Debug($"Last message created on: {lastMessage.CreatedAt}");
+                    double diff = (messages.Last().CreatedAt.UtcDateTime - DateTimeOffset.Now.UtcDateTime).TotalDays;
+                    if (diff >= days)
                     {
+                        Log.Debug("Finished Scan: Messages older than set date.");
                         hasFinishedScan = true;
                         continue;
                     }

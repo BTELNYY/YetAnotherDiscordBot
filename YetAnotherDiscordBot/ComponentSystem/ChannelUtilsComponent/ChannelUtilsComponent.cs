@@ -171,7 +171,12 @@ namespace YetAnotherDiscordBot.ComponentSystem.ChannelUtilsComponent
                 return false;
             }
             msg.DeleteAsync();
-            _stickedMessageCache.TryRemove(textChannel.Id, out ChannelUtilsComponentConfiguration.StickyMessageData outData);
+            bool success = _stickedMessageCache.TryRemove(textChannel.Id, out ChannelUtilsComponentConfiguration.StickyMessageData outData);
+            if(!success)
+            {
+                failureReason = "Failed to remove the sticky channel internal configuration! (Concurrent Dictionary Failure)";
+                return false;
+            }
             SaveStickyMessageData();
             failureReason = string.Empty;
             return true;
